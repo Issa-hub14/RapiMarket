@@ -42,6 +42,7 @@ public class ControladorSuperMercado {
         vista.addBtnAgregarListaListener(e -> agregarALista());
         vista.addBtnQuitarListaListener(e -> quitarDeLista());
         vista.addBtnVolverListener(e -> volver());
+        vista.addBtnMicrofonoListener(e -> manejarMicrofono());
     }
 
     private void configurarVoz() {
