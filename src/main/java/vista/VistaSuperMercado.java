@@ -19,6 +19,14 @@ public class VistaSuperMercado extends VistaBase {
     /**
      * Creates new form VistaSuperMercado
      */
+    private ActionListener listenerBuscar;
+    private ActionListener listenerSiguiente;
+    private ActionListener listenerRepetir;
+    private ActionListener listenerAgrgarLista;
+    private ActionListener listenerQuitarLista;
+    private ActionListener listenerMicrofono;
+    private ActionListener listenerVolver;
+
     private Producto ultimoProducto;
 
     public VistaSuperMercado() {
@@ -34,31 +42,19 @@ public class VistaSuperMercado extends VistaBase {
     }
 
     private void configurarEstilos() {
-        // Etiquetas de información (grandes y legibles)
-        lblProductoActual.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblProductoActual.setForeground(new Color(40, 40, 90));
+
         lblProductoActual.setHorizontalAlignment(SwingConstants.CENTER);
-
-        lblPasillo.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        lblPasillo.setForeground(new Color(20, 100, 50));
         lblPasillo.setHorizontalAlignment(SwingConstants.CENTER);
-
-        lblPrecio.setFont(new Font("Segoe UI", Font.PLAIN, 17));
-        lblPrecio.setForeground(new Color(80, 80, 80));
         lblPrecio.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Campo de búsqueda
-        txtBuscar.setFont(new Font("Segoe UI", Font.PLAIN, 17));
         txtBuscar.addActionListener(e -> btnBuscar.doClick());
 
-        // Botón buscar
-        aplicarEstiloBoton(btnBuscar, new Color(52, 101, 195), "Buscar producto");
+        aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
 
         // Lista de compras
         lstMiLista.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         lstMiLista.setFixedCellHeight(36);
 
-        // 1 click → leer item seleccionado
         lstMiLista.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 String item = lstMiLista.getSelectedValue();
@@ -68,18 +64,15 @@ public class VistaSuperMercado extends VistaBase {
             }
         });
 
-        // Botones de acción
-        aplicarEstiloBoton(btnSiguiente, new Color(34, 136, 74), "Siguiente producto");
-        aplicarEstiloBoton(btnRepetir, new Color(100, 80, 180), "Repetir indicación");
-        aplicarEstiloBoton(btnAgregarLista, new Color(220, 130, 20), "Agregar a mi lista");
-        aplicarEstiloBoton(btnQuitarLista, new Color(200, 70, 70), "Quitar de mi lista");
-        aplicarEstiloBoton(btnVolver, new Color(110, 110, 120), "Volver al menú");
+        aplicarEstiloBoton(btnSiguiente, new Color(146, 195, 98), "Siguiente producto");
+        aplicarEstiloBoton(btnRepetir, new Color(235, 93, 93), "Repetir indicación");
+        aplicarEstiloBoton(btnAgregarLista, new Color(72, 112, 32), "Agregar a mi lista");
+        aplicarEstiloBoton(btnQuitarLista, new Color(186, 135, 75), "Quitar de mi lista");
+        aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
     }
 
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBackground(color);
-        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -96,6 +89,81 @@ public class VistaSuperMercado extends VistaBase {
             }
         });
     }
+
+    public String getTextoBusqueda() {
+        return txtBuscar.getText().trim();
+    }
+
+    public String getItemListaSeleccionado() {
+        return lstMiLista.getSelectedValue();
+    }
+
+    public void addBtnBuscarListener(ActionListener l) {
+        this.listenerBuscar = l;
+    }
+
+    public void addBtnSiguienteListener(ActionListener l) {
+        this.listenerSiguiente = l;
+    }
+
+    public void addBtnRepetirListener(ActionListener l) {
+        this.listenerRepetir = l;
+    }
+
+    public void addBtnAgregarListaListener(ActionListener l) {
+        this.listenerAgrgarLista = l;
+    }
+
+    public void addBtnQuitarListaListener(ActionListener l) {
+        this.listenerQuitarLista = l;
+    }
+
+    public void addBtnVolverListener(ActionListener l) {
+        this.listenerVolver = l;
+    }
+
+    public void addBtnMicrofonoListener(ActionListener l) {
+        this.listenerMicrofono = l;
+    }
+
+    public void mostrarInfoProducto(Producto p) {
+        ultimoProducto = p;
+        if (p == null) {
+            lblProductoActual.setText("Producto no encontrado");
+            lblPasillo.setText("-");
+            lblPrecio.setText("-");
+            return;
+        }
+
+        lblProductoActual.setText(p.getNombre());
+        lblPasillo.setText("Pasillo: " + p.getPasillo());
+        lblPrecio.setText("Precio: $" + (int) p.getPrecio());
+
+        lectorVoz.hablar(
+                p.getNombre()
+                + ". Pasillo " + p.getPasillo()
+                + ". Precio " + (int) p.getPrecio() + " pesos."
+        );
+    }
+
+    public void repetirIndicacion() {
+        if (ultimoProducto != null) {
+            lectorVoz.hablar(
+                    ultimoProducto.getNombre()
+                    + ". Está en el pasillo "
+                    + ultimoProducto.getPasillo()
+            );
+        }
+    }
+
+    public void actualizarListaMercado(List<String> lista) {
+        DefaultListModel<String> model = new DefaultListModel<>();
+        for (String item : lista) {
+            model.addElement(item);
+        }
+        lstMiLista.setModel(model);
+    }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -253,18 +321,33 @@ public class VistaSuperMercado extends VistaBase {
         btnRepetir.setForeground(new java.awt.Color(255, 255, 255));
         btnRepetir.setText("REPETIR");
         btnRepetir.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnRepetir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRepetirActionPerformed(evt);
+            }
+        });
 
         btnAgregarLista.setBackground(new java.awt.Color(72, 112, 32));
         btnAgregarLista.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAgregarLista.setForeground(new java.awt.Color(255, 255, 255));
         btnAgregarLista.setText("AGREGAR A LISTA");
         btnAgregarLista.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnAgregarLista.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarListaActionPerformed(evt);
+            }
+        });
 
         btnQuitarLista.setBackground(new java.awt.Color(196, 135, 75));
         btnQuitarLista.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnQuitarLista.setForeground(new java.awt.Color(255, 255, 255));
         btnQuitarLista.setText("QUITAR DE LISTA");
         btnQuitarLista.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnQuitarLista.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQuitarListaActionPerformed(evt);
+            }
+        });
 
         btnVolver.setBackground(new java.awt.Color(171, 171, 171));
         btnVolver.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
@@ -365,23 +448,59 @@ public class VistaSuperMercado extends VistaBase {
 
     private void btnMicrofonoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMicrofonoActionPerformed
         // TODO add your handling code here:
+        if (listenerMicrofono != null) {
+            listenerMicrofono.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnMicrofonoActionPerformed
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
         // TODO add your handling code here:
+        if (listenerBuscar != null) {
+            listenerBuscar.actionPerformed(evt);
+        }
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
         // TODO add your handling code here:
+        if (listenerBuscar != null) {
+            listenerBuscar.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
     private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSiguienteActionPerformed
         // TODO add your handling code here:
+        if (listenerSiguiente != null) {
+            listenerSiguiente.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnSiguienteActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         // TODO add your handling code here:
+        if (listenerVolver != null) {
+            listenerVolver.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void btnAgregarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarListaActionPerformed
+        // TODO add your handling code here:
+        if (listenerAgrgarLista != null) {
+            listenerAgrgarLista.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnAgregarListaActionPerformed
+
+    private void btnRepetirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRepetirActionPerformed
+        // TODO add your handling code here:
+        if (listenerRepetir != null) {
+            listenerRepetir.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnRepetirActionPerformed
+
+    private void btnQuitarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarListaActionPerformed
+        // TODO add your handling code here:
+        if (listenerQuitarLista != null) {
+            listenerQuitarLista.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnQuitarListaActionPerformed
 
     /**
      * @param args the command line arguments
