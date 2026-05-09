@@ -14,27 +14,34 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class VistaPedidoOnline extends VistaBase  {
+public class VistaPedidoOnline extends VistaBase {
 
     /**
      * Creates new form VistaPedidoOnline
      */
     private ActionListener accionDobleClick;
+    private ActionListener listenerBuscar;
+    private ActionListener listenerAgregar;
+    private ActionListener listenerEliminar;
+    private ActionListener listenerConfirmar;
+    private ActionListener listenerVolver;
+    private ActionListener listenerMicrofono;
+    private ActionListener listenerLeerCarrito;
 
     public VistaPedidoOnline() {
         super("Comprar en Línea");
-        setSize(780, 600);
         setLocationRelativeTo(null);
         lectorVoz.hablar("Modo compra en línea. ¿Qué producto buscas?");
     }
 
     @Override
     protected void initComponentes() {
-        initComponents();       
-        configurarEstilos();   
+        initComponents();
+        configurarEstilos();
     }
-     private void configurarEstilos() {
-        
+
+    private void configurarEstilos() {
+
         lstResultados.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lstResultados.setFixedCellHeight(38);
 
@@ -49,63 +56,66 @@ public class VistaPedidoOnline extends VistaBase  {
         });
 
         lstResultados.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && accionDobleClick != null) {
                     String sel = lstResultados.getSelectedValue();
-                    if (sel != null)
+                    if (sel != null) {
                         accionDobleClick.actionPerformed(
-                            new ActionEvent(lstResultados,
-                                ActionEvent.ACTION_PERFORMED, sel));
+                                new ActionEvent(lstResultados,
+                                        ActionEvent.ACTION_PERFORMED, sel));
+                    }
                 }
             }
         });
         txtBuscar.addActionListener(e -> btnBuscar.doClick());
 
- 
         txtCarrito.setEditable(false);
         txtCarrito.setLineWrap(true);
         txtCarrito.setWrapStyleWord(true);
 
-        // Label total
-        lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblTotal.setForeground(new Color(34, 136, 74));
 
         // Botones
-        aplicarEstiloBoton(btnAgregar,     new Color(34, 136, 74),  "Agregar al carrito");
-        aplicarEstiloBoton(btnEliminar,    new Color(200, 70, 70),  "Eliminar del carrito");
-        aplicarEstiloBoton(btnLeerCarrito, new Color(100, 80, 180), "Leer carrito en voz alta");
-        aplicarEstiloBoton(btnConfirmar,   new Color(220, 130, 20), "Confirmar pedido");
-        aplicarEstiloBoton(btnVolver,      new Color(110, 110, 120),"Volver al menú");
+        aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
+        aplicarEstiloBoton(btnAgregar, new Color(146, 195, 98), "Agregar al carrito");
+        aplicarEstiloBoton(btnEliminar, new Color(235, 93, 93), "Eliminar del carrito");
+        aplicarEstiloBoton(btnLeerCarrito, new Color(72, 112, 32), "Leer carrito en voz alta");
+        aplicarEstiloBoton(btnConfirmar, new Color(196, 135, 75), "Confirmar pedido");
+        aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
+        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Micrófono");
     }
 
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBackground(color);
-        btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+            @Override
+            public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
                 lectorVoz.hablar(textoVoz);
             }
-            @Override public void mouseExited(MouseEvent e) {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
         });
     }
 
-    // ── Métodos para actualizar UI (llamados por el Controlador) ─
     public void mostrarResultados(List<Producto> productos) {
         DefaultListModel<String> model = new DefaultListModel<>();
         if (productos.isEmpty()) {
             model.addElement("Sin resultados. Intenta otra búsqueda.");
             lectorVoz.hablar("No encontré productos.");
         } else {
-            for (Producto p : productos)
-                model.addElement(p.getNombre() + "  —  $" +
-                    String.format("%,.0f", p.getPrecio()));
+            for (Producto p : productos) {
+                model.addElement(p.getNombre() + "  —  $" + (int) p.getPrecio());
+            }
+            //String.format("%,.0f", p.getPrecio())); CAMBIO EN EL PRECIO REVISAR
+
             lectorVoz.hablar(productos.size() + " opciones disponibles.");
         }
         lstResultados.setModel(model);
@@ -113,9 +123,48 @@ public class VistaPedidoOnline extends VistaBase  {
 
     public void actualizarCarrito(String resumen, double total) {
         txtCarrito.setText(resumen);
-        lblTotal.setText("Total: $" + String.format("%,.0f", total));
+        lblTotal.setText("Total: $" + (int) total); // OJO PRECIO
     }
 
+    public String getTextoBusqueda() {
+        return txtBuscar.getText().trim();
+    }
+
+    public String getProductoSeleccionado() {
+        return lstResultados.getSelectedValue();
+    }
+
+    public void addBtnBuscarListener(ActionListener l) {
+        this.listenerBuscar = l;
+    }
+    
+    public void addBtnMicrofonoListener(ActionListener l) {
+        this.listenerBuscar = l;
+    }
+
+    public void addBtnAgregarListener(ActionListener l) {
+        this.listenerAgregar = l;
+    }
+
+    public void addBtnEliminarListener(ActionListener l) {
+        this.listenerEliminar = l;
+    }
+
+    public void addBtnConfirmarListener(ActionListener l) {
+        this.listenerConfirmar = l;
+    }
+
+    public void addBtnVolverListener(ActionListener l) {
+        this.listenerVolver = l;
+    }
+
+    public void addBtnLeerCarritoListener(ActionListener l) {
+        this.listenerLeerCarrito = l;
+    }
+
+    public void addDobleClickProductoListener(ActionListener l) {
+        this.accionDobleClick = l;
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -168,6 +217,11 @@ public class VistaPedidoOnline extends VistaBase  {
         btnBuscar.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         btnBuscar.setText("BUSCAR");
         btnBuscar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnBuscar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBuscarActionPerformed(evt);
+            }
+        });
 
         jScrollPane2.setViewportBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
@@ -207,6 +261,11 @@ public class VistaPedidoOnline extends VistaBase  {
         btnAgregar.setText("AGREGAR");
         btnAgregar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnAgregar.setPreferredSize(new java.awt.Dimension(95, 47));
+        btnAgregar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAgregarActionPerformed(evt);
+            }
+        });
 
         btnEliminar.setBackground(new java.awt.Color(235, 93, 93));
         btnEliminar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -214,6 +273,11 @@ public class VistaPedidoOnline extends VistaBase  {
         btnEliminar.setText("ELIMINAR");
         btnEliminar.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnEliminar.setPreferredSize(new java.awt.Dimension(93, 47));
+        btnEliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarActionPerformed(evt);
+            }
+        });
 
         btnLeerCarrito.setBackground(new java.awt.Color(72, 112, 32));
         btnLeerCarrito.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -221,6 +285,11 @@ public class VistaPedidoOnline extends VistaBase  {
         btnLeerCarrito.setText("LEER CARRITO");
         btnLeerCarrito.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnLeerCarrito.setPreferredSize(new java.awt.Dimension(93, 47));
+        btnLeerCarrito.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLeerCarritoActionPerformed(evt);
+            }
+        });
 
         btnConfirmar.setBackground(new java.awt.Color(196, 135, 75));
         btnConfirmar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
@@ -275,7 +344,6 @@ public class VistaPedidoOnline extends VistaBase  {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jScrollPane2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -329,12 +397,13 @@ public class VistaPedidoOnline extends VistaBase  {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 192, Short.MAX_VALUE)
                         .addGap(17, 17, 17)))
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnAgregar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnLeerCarrito, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnLeerCarrito, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnAgregar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnEliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnConfirmar, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
@@ -358,50 +427,53 @@ public class VistaPedidoOnline extends VistaBase  {
 
     private void btnMicrofonoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMicrofonoActionPerformed
         // TODO add your handling code here:
+        if (listenerMicrofono != null) {
+            listenerMicrofono.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnMicrofonoActionPerformed
 
     private void btnConfirmarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConfirmarActionPerformed
         // TODO add your handling code here:
+        if (listenerConfirmar != null) {
+            listenerConfirmar.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnConfirmarActionPerformed
 
     private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
         // TODO add your handling code here:
+        if (listenerVolver != null) {
+            listenerVolver.actionPerformed(evt);
+        }
     }//GEN-LAST:event_btnVolverActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VistaPedidoOnline.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VistaPedidoOnline.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VistaPedidoOnline.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VistaPedidoOnline.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarActionPerformed
+        // TODO add your handling code here:
+        if (listenerEliminar != null) {
+            listenerEliminar.actionPerformed(evt);
         }
-        //</editor-fold>
+    }//GEN-LAST:event_btnEliminarActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new VistaPedidoOnline().setVisible(true);
-            }
-        });
-    }
+    private void btnAgregarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarActionPerformed
+        // TODO add your handling code here:
+        if (listenerAgregar != null) {
+            listenerAgregar.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnAgregarActionPerformed
+
+    private void btnLeerCarritoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeerCarritoActionPerformed
+        // TODO add your handling code here:
+        if (listenerLeerCarrito != null) {
+            listenerLeerCarrito.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnLeerCarritoActionPerformed
+
+    private void btnBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarActionPerformed
+        // TODO add your handling code here:
+        if (listenerBuscar != null) {
+            listenerBuscar.actionPerformed(evt);
+        }
+    }//GEN-LAST:event_btnBuscarActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregar;

@@ -40,7 +40,7 @@ public class ControladorPedido {
         vista.addBtnConfirmarListener(e -> confirmarPedido());
         vista.addBtnLeerCarritoListener(e -> leerCarrito());
         vista.addBtnVolverListener(e -> volver());
-        vista.addBtnMicrofonoListener(e -> manejarMicrofono());
+        vista.addBtnMicrofonoListener(e -> activarMicrofono());
 
         vista.addDobleClickProductoListener(e -> agregarSeleccionado());
     }
@@ -159,7 +159,7 @@ public class ControladorPedido {
     private void volver() {
         receptorVoz.detenerYProcesar();
         vista.setVisible(false);
-        
+
         javax.swing.SwingUtilities.invokeLater(() -> {
             for (java.awt.Window w : java.awt.Window.getWindows()) {
                 if (w.getClass().getSimpleName().equals("VistaPrincipal")) {
@@ -168,6 +168,17 @@ public class ControladorPedido {
                 }
             }
         });
+    }
+
+    private void activarMicrofono() {
+        lectorVoz.hablar("Habla ahora. Tienes 3 segundos.");
+        vista.actualizarEstado("Escuchando...");
+
+       
+        receptorVoz.iniciarGrabacion();
+        receptorVoz.detenerYProcesar();
+
+        vista.actualizarEstado("Listo");
     }
 
     private void actualizarCarritoEnVista() {
