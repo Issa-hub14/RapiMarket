@@ -51,8 +51,7 @@ public class VistaSuperMercado extends VistaBase {
 
         aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
 
-        // Lista de compras
-       
+        
         lstMiLista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
 
