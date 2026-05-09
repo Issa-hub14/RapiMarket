@@ -166,4 +166,21 @@ public class ControladorSuperMercado {
     private void actualizarLista() {
         vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
     }
+    
+    private void manejarMicrofono() {
+    if (receptorVoz.isGrabando()) {
+        new Thread(() -> {
+            receptorVoz.detenerYProcesar();
+            vista.actualizarEstado("Audio procesado.");
+        }).start();
+        vista.actualizarEstado("Procesando...");
+    } else {
+        try {
+            receptorVoz.iniciarGrabacion();
+            vista.actualizarEstado("Grabando... clic de nuevo para detener.");
+        } catch (Exception ex) {
+            vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
+        }
+    }
+}
 }
