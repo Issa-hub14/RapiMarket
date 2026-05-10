@@ -157,7 +157,7 @@ public class ControladorPedido {
     }
 
     private void volver() {
-        receptorVoz.detenerYProcesar();
+        receptorVoz.detenerGrabacion();
         vista.setVisible(false);
 
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -178,7 +178,7 @@ public class ControladorPedido {
 
         //vista.actualizarEstado("Listo");
         if (receptorVoz.isGrabando()) {
-            new Thread(() -> { receptorVoz.detenerYProcesar();
+            new Thread(() -> { receptorVoz.detenerGrabacion();
                 vista.actualizarEstado("Audio procesado.");
             }).start();
             vista.actualizarEstado("Procesando...");

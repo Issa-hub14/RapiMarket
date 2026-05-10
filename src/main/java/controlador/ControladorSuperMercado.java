@@ -151,7 +151,7 @@ public class ControladorSuperMercado {
     }
 
     private void volver() {
-        receptorVoz.detenerYProcesar();
+        receptorVoz.detenerGrabacion();
         vista.setVisible(false);
         javax.swing.SwingUtilities.invokeLater(() -> {
             for (java.awt.Window w : java.awt.Window.getWindows()) {
@@ -170,7 +170,7 @@ public class ControladorSuperMercado {
     private void manejarMicrofono() {
     if (receptorVoz.isGrabando()) {
         new Thread(() -> {
-            receptorVoz.detenerYProcesar();
+            receptorVoz.detenerGrabacion();
             vista.actualizarEstado("Audio procesado.");
         }).start();
         vista.actualizarEstado("Procesando...");
