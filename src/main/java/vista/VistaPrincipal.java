@@ -19,13 +19,15 @@ public class VistaPrincipal extends VistaBase {
     private ActionListener listenerLista;
     private ActionListener listenerVoz;
 
+    private JButton ultimoBoton = null;
+
     /**
      * Creates new form VistaPrincipal
      */
     public VistaPrincipal() {
         super("Asistente de Compras");
         setLocationRelativeTo(null);
-        lectorVoz.hablar("Bienvenido. ¿Qué deseas hacer hoy?");
+        lectorVoz.hablar("Bienvenido. ¿Qué deseas hacer hoy? Recuerda un click para escuchar, dos para realizar acciones");
     }
 
     @Override
@@ -47,18 +49,43 @@ public class VistaPrincipal extends VistaBase {
         btn.setBackground(color);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        for (ActionListener al : btn.getActionListeners()) {
+            btn.removeActionListener(al);
+        }
+
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
-                if (chkVoz.isSelected()) {
-                    lectorVoz.hablar(textoVoz);
-                }
+
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (ultimoBoton != btn) {
+                    ultimoBoton = btn;
+                    if (chkVoz.isSelected()) {
+                        lectorVoz.hablar(textoVoz);
+                    }
+                    return;
+                }
+
+                ultimoBoton = null;
+
+                if (btn == btnSupermercado && listenerSupermercado != null) {
+                    listenerSupermercado.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnOnline && listenerOnline != null) {
+                    listenerOnline.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnLista && listenerLista != null) {
+                    listenerLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
             }
         });
     }
@@ -81,6 +108,14 @@ public class VistaPrincipal extends VistaBase {
 
     public boolean isVozActiva() {
         return chkVoz.isSelected();
+    }
+    
+    public void setVozActiva(boolean activa) {
+        chkVoz.setSelected(activa);
+        lectorVoz.setActivo(activa);
+        if (activa) {
+            lectorVoz.hablar("Voz activada");
+        }
     }
 
     /**
@@ -258,6 +293,10 @@ public class VistaPrincipal extends VistaBase {
         // TODO add your handling code here:
         if (listenerVoz != null) {
             listenerVoz.actionPerformed(evt);
+        }
+        lectorVoz.setActivo(chkVoz.isSelected());
+        if (chkVoz.isSelected()) {
+            lectorVoz.hablar("Voz activada");
         }
     }//GEN-LAST:event_chkVozActionPerformed
 
