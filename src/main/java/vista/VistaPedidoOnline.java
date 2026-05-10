@@ -49,8 +49,16 @@ public class VistaPedidoOnline extends VistaBase {
             if (!e.getValueIsAdjusting()) {
                 String sel = lstResultados.getSelectedValue();
                 if (sel != null) {
-                    lectorVoz.hablar(sel + ". Doble clic para agregar al carrito.");
-                    actualizarEstado("Seleccionado: " + sel);
+                    String[] partes = sel.split("—");
+                    String nombre = partes[0].trim();
+                    String precio = partes[1].replace("$", "").trim();
+                    lectorVoz.hablar(
+                            nombre
+                            + " Cuesta " + precio + " pesos "
+                            + "Pulsa nuevamente para agregar al carrito"
+                    );
+
+                    actualizarEstado("Seleccionado: " + nombre);
                 }
             }
         });
@@ -95,14 +103,21 @@ public class VistaPedidoOnline extends VistaBase {
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
-                lectorVoz.hablar(textoVoz);
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
-        });
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 1) {
+                    lectorVoz.hablar(textoVoz);
+                }
+            }
+        }
+        );
     }
 
     public void mostrarResultados(List<Producto> productos) {
@@ -137,9 +152,9 @@ public class VistaPedidoOnline extends VistaBase {
     public void addBtnBuscarListener(ActionListener l) {
         this.listenerBuscar = l;
     }
-    
+
     public void addBtnMicrofonoListener(ActionListener l) {
-        this.listenerBuscar = l;
+        this.listenerMicrofono = l;
     }
 
     public void addBtnAgregarListener(ActionListener l) {

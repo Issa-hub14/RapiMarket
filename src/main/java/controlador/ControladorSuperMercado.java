@@ -68,7 +68,6 @@ public class ControladorSuperMercado {
             }
         });
 
-        // Texto libre → buscar ese producto directamente
         receptorVoz.setManejadorTexto(texto -> {
             List<Producto> resultados = modelo.buscarProductos(texto);
             if (!resultados.isEmpty()) {
@@ -77,8 +76,6 @@ public class ControladorSuperMercado {
                 lectorVoz.hablar("No encontré " + texto + " en el catálogo.");
             }
         });
-
-        receptorVoz.iniciarGrabacion();
     }
 
     private void buscarProducto() {
@@ -171,9 +168,10 @@ public class ControladorSuperMercado {
     if (receptorVoz.isGrabando()) {
         new Thread(() -> {
             receptorVoz.detenerGrabacion();
-            vista.actualizarEstado("Audio procesado.");
+            receptorVoz.reproducirGrabacion();
+            vista.actualizarEstado("Audio reproducido.");
         }).start();
-        vista.actualizarEstado("Procesando...");
+        vista.actualizarEstado("Procesando audio...");
     } else {
         try {
             receptorVoz.iniciarGrabacion();

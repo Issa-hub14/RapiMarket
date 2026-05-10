@@ -30,6 +30,7 @@ public class ControladorPedido {
 
         conectarBotones();
         configurarVoz();
+        vista.mostrarResultados(modelo.obtenerCatalogo());
         actualizarCarritoEnVista();
     }
 
@@ -98,6 +99,7 @@ public class ControladorPedido {
         try {
             Producto p = modelo.buscarProductoPorNombre(nombre);
             if (p == null) {
+                lectorVoz.hablar("Producto no encontrado");
                 throw new IllegalArgumentException("Producto no encontrado");
             }
 
@@ -178,10 +180,12 @@ public class ControladorPedido {
 
         //vista.actualizarEstado("Listo");
         if (receptorVoz.isGrabando()) {
-            new Thread(() -> { receptorVoz.detenerGrabacion();
-                vista.actualizarEstado("Audio procesado.");
+            new Thread(() -> {
+                receptorVoz.detenerGrabacion();
+                receptorVoz.reproducirGrabacion();
+                vista.actualizarEstado("Audio reproducido.");
             }).start();
-            vista.actualizarEstado("Procesando...");
+            vista.actualizarEstado("Esperando comando...");
 
         } else {
             try {
