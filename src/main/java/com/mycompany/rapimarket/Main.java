@@ -17,7 +17,7 @@ import javax.swing.SwingUtilities;
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-             ModeloMicrofono modeloMic = new ModeloMicrofono();
+            ModeloMicrofono modeloMic = new ModeloMicrofono();
 
             ModeloTienda   modelo = new ModeloTienda();
             VistaPrincipal vista  = new VistaPrincipal();

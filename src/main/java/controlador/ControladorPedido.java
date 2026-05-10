@@ -72,7 +72,7 @@ public class ControladorPedido {
             vista.mostrarResultados(resultados);
         });
 
-        receptorVoz.iniciarGrabacion();
+        //receptorVoz.iniciarGrabacion();
     }
 
     private void buscar() {
@@ -171,14 +171,28 @@ public class ControladorPedido {
     }
 
     private void activarMicrofono() {
-        lectorVoz.hablar("Habla ahora. Tienes 3 segundos.");
-        vista.actualizarEstado("Escuchando...");
+        //lectorVoz.hablar("Habla ahora. Tienes 3 segundos.");
+        // vista.actualizarEstado("Escuchando...");
+        // receptorVoz.iniciarGrabacion();
+        // receptorVoz.detenerYProcesar();
 
-       
-        receptorVoz.iniciarGrabacion();
-        receptorVoz.detenerYProcesar();
+        //vista.actualizarEstado("Listo");
+        if (receptorVoz.isGrabando()) {
+            new Thread(() -> { receptorVoz.detenerYProcesar();
+                vista.actualizarEstado("Audio procesado.");
+            }).start();
+            vista.actualizarEstado("Procesando...");
 
-        vista.actualizarEstado("Listo");
+        } else {
+            try {
+                receptorVoz.iniciarGrabacion();
+                vista.actualizarEstado("Grabando... pulsa de nuevo para detener.");
+            } catch (Exception ex) {
+                vista.mostrarError(
+                        "Error al acceder al micrófono: " + ex.getMessage()
+                );
+            }
+        }
     }
 
     private void actualizarCarritoEnVista() {

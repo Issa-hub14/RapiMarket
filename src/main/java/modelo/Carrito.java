@@ -20,6 +20,9 @@ public class Carrito {
     }
 
     public void agregarProducto(Producto p) {
+        if (p == null) {
+            return;
+        }
         for (Producto existente : productos) {
             if (existente.getNombre().equalsIgnoreCase(p.getNombre())) {
                 existente.setCantidad(existente.getCantidad() + 1);
@@ -30,6 +33,9 @@ public class Carrito {
     }
 
     public void eliminarProducto(String nombre) {
+        if (nombre == null || nombre.isBlank()) {
+            return;
+        }
         productos.removeIf(p -> p.getNombre().equalsIgnoreCase(nombre));
     }
 
@@ -65,14 +71,35 @@ public class Carrito {
         if (productos.isEmpty()) {
             return "Tu carrito está vacío";
         }
+        
         String texto = "Tu carrito tiene: ";
-
         for (Producto p : productos) {
             texto += p.getCantidad() + " " + p.getNombre() + " | ";
         }
-        
+        texto += "Para un total de: " + obtenerTotal() + " pesos";
 
-        texto += "Total: " + obtenerTotal() + " pesos";
+        return texto;
+
+    }
+
+    @Override
+    public String toString() {
+        if (productos.isEmpty()) {
+            return "Carrito vacío";
+        }
+        
+        String texto = "Productos:";
+        for (Producto producto : productos) {
+
+            texto += (producto.getCantidad())
+                    + (" x ")
+                    + (producto.getNombre())
+                    + (" - $")
+                    + (producto.PrecioTotal())
+                    + ("\n");
+        }
+        texto += ("\nTOTAL: $")
+                + (obtenerTotal());
 
         return texto;
     }

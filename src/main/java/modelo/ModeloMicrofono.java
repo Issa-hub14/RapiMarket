@@ -21,7 +21,7 @@ public class ModeloMicrofono implements Runnable {
     private ByteArrayOutputStream flujoSalida; 
 
     public ModeloMicrofono() {
-        formato = new AudioFormat(44100.0f, 16, 1, true, true);
+        formato = new AudioFormat(44100.0f, 16, 1, true, false);// CAMBIO DE TRUE
     }
 
     public void iniciarCaptura() throws LineUnavailableException {

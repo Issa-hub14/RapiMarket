@@ -66,7 +66,7 @@ public class ControladorPrincipal {
             }
         });
 
-        receptorVoz.iniciarGrabacion();
+        //receptorVoz.iniciarGrabacion();
     }
 
     private void abrirPedidoOnline() {
