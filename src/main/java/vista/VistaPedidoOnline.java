@@ -19,6 +19,8 @@ public class VistaPedidoOnline extends VistaBase {
     /**
      * Creates new form VistaPedidoOnline
      */
+    private JButton ultimoBoton = null;
+
     private ActionListener accionDobleClick;
     private ActionListener listenerBuscar;
     private ActionListener listenerAgregar;
@@ -99,6 +101,7 @@ public class VistaPedidoOnline extends VistaBase {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -112,8 +115,11 @@ public class VistaPedidoOnline extends VistaBase {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 1) {
+                if (ultimoBoton != btn) {
+                    ultimoBoton = btn;
                     lectorVoz.hablar(textoVoz);
+                } else {
+                    ultimoBoton = null;
                 }
             }
         }
@@ -438,6 +444,9 @@ public class VistaPedidoOnline extends VistaBase {
 
     private void txtBuscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBuscarActionPerformed
         // TODO add your handling code here:
+        if (listenerBuscar != null) {
+            listenerBuscar.actionPerformed(evt);
+        }
     }//GEN-LAST:event_txtBuscarActionPerformed
 
     private void btnMicrofonoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMicrofonoActionPerformed

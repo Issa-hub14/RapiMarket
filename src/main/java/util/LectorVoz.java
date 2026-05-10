@@ -8,13 +8,17 @@ package util;
  *
  * @author isabe
  */
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class LectorVoz implements IReproducible {
 
     private static LectorVoz instancia;
     private boolean activo = true;
-    private Process procesoActual;    
+    private Process procesoActual;
 
-    
     private LectorVoz() {
     }
 
@@ -36,19 +40,48 @@ public class LectorVoz implements IReproducible {
         new Thread(() -> {
             try {
                 String os = System.getProperty("os.name").toLowerCase();
-                ProcessBuilder pb = construirComando(os, texto);
+                if (os.contains("win")) {
+                    String textoLimpio = texto.replace("\"", "\\\"");
 
-                if (pb != null) {
+                    File tempScript = File.createTempFile("speech", ".ps1");
+                    tempScript.deleteOnExit();
+
+                    String script
+                            = "Add-Type -AssemblyName System.Speech\n"
+                            + "$speech = New-Object System.Speech.Synthesis.SpeechSynthesizer\n"
+                            + "$speech.Rate = 1\n"
+                            + "try { $speech.SelectVoiceByHints('es-CO') } catch { }\n"
+                            + "$speech.Speak('" + textoLimpio + "')\n";
+
+                    try (FileWriter fw = new FileWriter(tempScript)) {
+                        fw.write(script);
+                    }
+                    ProcessBuilder pb = new ProcessBuilder(
+                            "powershell.exe",
+                            "-ExecutionPolicy", "Bypass",
+                            "-File", tempScript.getAbsolutePath()
+                    );
+
+                    pb.redirectErrorStream(true);
+                    procesoActual = pb.start();
+                    procesoActual.waitFor();
+                    tempScript.delete();
+
+                } else if (os.contains("mac")) {
+                    ProcessBuilder pb = new ProcessBuilder("say", "-v", "Paulina", texto);
+                    pb.redirectErrorStream(true);
+                    procesoActual = pb.start();
+                    procesoActual.waitFor();
+
+                } else if (os.contains("nix") || os.contains("nux") || os.contains("linux")) {
+                    ProcessBuilder pb = new ProcessBuilder("espeak", "-v", "es", "-s", "140", texto);
                     pb.redirectErrorStream(true);
                     procesoActual = pb.start();
                     procesoActual.waitFor();
                 }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                
+
             } catch (Exception e) {
-                System.err.println("[LectorVoz] TTS no disponible: " + e.getMessage());
-                
+                System.err.println("[LectorVoz] Error: " + e.getMessage());
             }
         }).start();
     }
@@ -59,36 +92,7 @@ public class LectorVoz implements IReproducible {
             procesoActual.destroyForcibly();
         }
     }
-
-    private ProcessBuilder construirComando(String os, String texto) {
-        String textoLimpio = texto
-                .replace("\"", "")
-                .replace("'", "")
-                .replace("$", "");
-
-        if (os.contains("win")) {
-            String script = String.format(
-                    "Add-Type -AssemblyName System.Speech; "
-                    + "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
-                    + "$s.Rate = 1; "
-                    + "try { $s.SelectVoiceByHints('es-CO') } catch { "
-                    + "  try { $s.SelectVoiceByHints('es') } catch {} }; "
-                    + "$s.Speak(\"%s\");", textoLimpio
-            );
-            return new ProcessBuilder("powershell", "-NoProfile", "-Command", script);
-
-        } else if (os.contains("mac")) {
-            
-            return new ProcessBuilder("say", "-v", "Paulina", textoLimpio);
-
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("linux")) {
-            
-            return new ProcessBuilder("espeak", "-v", "es", "-s", "140", textoLimpio);
-        }
-
-        return null;    
-    }
-
+    
     @Override
     public void setActivo(boolean activo) {
         this.activo = activo;
