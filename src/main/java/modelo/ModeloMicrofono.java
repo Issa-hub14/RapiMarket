@@ -14,39 +14,52 @@ import java.io.IOException;
 import javax.sound.sampled.*;
 
 public class ModeloMicrofono implements Runnable {
-    
+
     private TargetDataLine microfono;
-    private boolean escuchando = false;
+    private boolean grabando;
     private AudioFormat formato;
-    private ByteArrayOutputStream flujoSalida; 
+    private ByteArrayOutputStream flujoSalida;
+    private Thread hiloGrabacion;
 
     public ModeloMicrofono() {
-        formato = new AudioFormat(44100.0f, 16, 1, true, false);// CAMBIO DE TRUE
+        formato = new AudioFormat(44100.0f, 16, 1, true, false);
+        grabando = false;
     }
 
     public void iniciarCaptura() throws LineUnavailableException {
+        if (grabando) {
+            return;
+        }
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, formato);
         microfono = (TargetDataLine) AudioSystem.getLine(info);
+
         microfono.open(formato);
         microfono.start();
-        escuchando = true;
-        flujoSalida = new ByteArrayOutputStream(); 
-        Thread hiloAudio = new Thread(this);
-        hiloAudio.start();
+        flujoSalida = new ByteArrayOutputStream();
+        grabando = true;
+
+        hiloGrabacion = new Thread(this);
+        hiloGrabacion.start();
+        System.out.println("Grabación iniciada...");
     }
 
     public void detenerCaptura() {
-        escuchando = false;
-        if (microfono != null) {
+        if (!grabando) {
+            return;
+        }
+
+        grabando = false;
+        if (microfono != null && microfono.isOpen()) {
             microfono.stop();
             microfono.close();
         }
+        System.out.println("Grabación detenida.");
     }
 
     @Override
     public void run() {
         byte[] buffer = new byte[1024];
-        while (escuchando) {
+        while (grabando) {
             int bytesLeidos = microfono.read(buffer, 0, buffer.length);
             if (bytesLeidos > 0) {
                 flujoSalida.write(buffer, 0, bytesLeidos);
@@ -60,27 +73,38 @@ public class ModeloMicrofono implements Runnable {
             return;
         }
         byte[] datosAudio = flujoSalida.toByteArray();
+        
         ByteArrayInputStream flujoEntrada = new ByteArrayInputStream(datosAudio);
         AudioInputStream audioStream = new AudioInputStream(
-            flujoEntrada, formato, datosAudio.length / formato.getFrameSize());
+                flujoEntrada, formato, datosAudio.length / formato.getFrameSize());
         DataLine.Info infoSalida = new DataLine.Info(SourceDataLine.class, formato);
         SourceDataLine altavoces = (SourceDataLine) AudioSystem.getLine(infoSalida);
         altavoces.open(formato);
         altavoces.start();
+        
         int tamanoBuffer = 1024;
         byte[] buffer = new byte[tamanoBuffer];
         int bytesLeidos;
+        
         while ((bytesLeidos = audioStream.read(buffer, 0, buffer.length)) != -1) {
             altavoces.write(buffer, 0, bytesLeidos);
         }
         altavoces.drain();
         altavoces.stop();
         altavoces.close();
+
         audioStream.close();
-        System.out.println(" se cerro!");
+        System.out.println("Reproducción finalizada.");
     }
 
     public byte[] getBytesGrabados() {
-        return flujoSalida != null ? flujoSalida.toByteArray() : new byte[0];
+        if (flujoSalida == null) {
+            return new byte[0];
+        }
+        return flujoSalida.toByteArray();
+    }
+
+    public boolean isGrabando() {
+        return grabando;
     }
 }
