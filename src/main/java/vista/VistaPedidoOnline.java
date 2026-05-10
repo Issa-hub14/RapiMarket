@@ -20,6 +20,7 @@ public class VistaPedidoOnline extends VistaBase {
      * Creates new form VistaPedidoOnline
      */
     private JButton ultimoBoton = null;
+    private String ultimoElementoSeleccionado = null;
 
     private ActionListener accionDobleClick;
     private ActionListener listenerBuscar;
@@ -72,8 +73,7 @@ public class VistaPedidoOnline extends VistaBase {
                     String sel = lstResultados.getSelectedValue();
                     if (sel != null) {
                         accionDobleClick.actionPerformed(
-                                new ActionEvent(lstResultados,
-                                        ActionEvent.ACTION_PERFORMED, sel));
+                                new ActionEvent(lstResultados, ActionEvent.ACTION_PERFORMED, sel));
                     }
                 }
             }
@@ -102,6 +102,10 @@ public class VistaPedidoOnline extends VistaBase {
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
+        for (ActionListener al : btn.getActionListeners()) {
+            btn.removeActionListener(al);
+        }
+
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -118,8 +122,29 @@ public class VistaPedidoOnline extends VistaBase {
                 if (ultimoBoton != btn) {
                     ultimoBoton = btn;
                     lectorVoz.hablar(textoVoz);
-                } else {
-                    ultimoBoton = null;
+                    return;
+                }
+                ultimoBoton = null;
+                if (btn == btnAgregar && listenerAgregar != null) {
+                    listenerAgregar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnEliminar && listenerEliminar != null) {
+                    listenerEliminar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnBuscar && listenerBuscar != null) {
+                    listenerBuscar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnConfirmar && listenerConfirmar != null) {
+                    listenerConfirmar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnVolver && listenerVolver != null) {
+                    listenerVolver.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnMicrofono && listenerMicrofono != null) {
+                    listenerMicrofono.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnLeerCarrito && listenerLeerCarrito != null) {
+                    listenerLeerCarrito.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
                 }
             }
         }
@@ -135,8 +160,7 @@ public class VistaPedidoOnline extends VistaBase {
             for (Producto p : productos) {
                 model.addElement(p.getNombre() + "  —  $" + (int) p.getPrecio());
             }
-            //String.format("%,.0f", p.getPrecio())); CAMBIO EN EL PRECIO REVISAR
-
+           
             lectorVoz.hablar(productos.size() + " opciones disponibles.");
         }
         lstResultados.setModel(model);
@@ -145,6 +169,7 @@ public class VistaPedidoOnline extends VistaBase {
     public void actualizarCarrito(String resumen, double total) {
         txtCarrito.setText(resumen);
         lblTotal.setText("Total: $" + (int) total); // OJO PRECIO
+        lectorVoz.hablar("Carrito actualizado. Total: " + total + " pesos");
     }
 
     public String getTextoBusqueda() {
