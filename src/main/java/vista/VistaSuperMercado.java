@@ -22,12 +22,13 @@ public class VistaSuperMercado extends VistaBase {
     private ActionListener listenerBuscar;
     private ActionListener listenerSiguiente;
     private ActionListener listenerRepetir;
-    private ActionListener listenerAgrgarLista;
+    private ActionListener listenerAgregarLista;
     private ActionListener listenerQuitarLista;
     private ActionListener listenerMicrofono;
     private ActionListener listenerVolver;
 
     private Producto ultimoProducto;
+    private JButton ultimoBoton = null;
 
     public VistaSuperMercado() {
         super("Guía de Supermercado");
@@ -51,9 +52,7 @@ public class VistaSuperMercado extends VistaBase {
 
         aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
 
-        
         lstMiLista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
 
         lstMiLista.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -76,6 +75,11 @@ public class VistaSuperMercado extends VistaBase {
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        for (ActionListener al : btn.getActionListeners()) {
+            btn.removeActionListener(al);
+        }
+
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -86,6 +90,39 @@ public class VistaSuperMercado extends VistaBase {
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (ultimoBoton != btn) {
+                    ultimoBoton = btn;
+                    lectorVoz.hablar(textoVoz);
+                    return;
+                }
+
+                ultimoBoton = null;
+
+                if (btn == btnBuscar && listenerBuscar != null) {
+                    listenerBuscar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnSiguiente && listenerSiguiente != null) {
+                    listenerSiguiente.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnRepetir && listenerRepetir != null) {
+                    listenerRepetir.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnAgregarLista && listenerAgregarLista != null) {
+                    listenerAgregarLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnQuitarLista && listenerQuitarLista != null) {
+                    listenerQuitarLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnVolver && listenerVolver != null) {
+                    listenerVolver.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
+                if (btn == btnMicrofono && listenerMicrofono != null) {
+                    listenerMicrofono.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                }
             }
         });
     }
@@ -111,7 +148,7 @@ public class VistaSuperMercado extends VistaBase {
     }
 
     public void addBtnAgregarListaListener(ActionListener l) {
-        this.listenerAgrgarLista = l;
+        this.listenerAgregarLista = l;
     }
 
     public void addBtnQuitarListaListener(ActionListener l) {
@@ -132,6 +169,7 @@ public class VistaSuperMercado extends VistaBase {
             lblProductoActual.setText("Producto no encontrado");
             lblPasillo.setText("-");
             lblPrecio.setText("-");
+            lectorVoz.hablar("Producto no encontrado");
             return;
         }
 
@@ -153,6 +191,8 @@ public class VistaSuperMercado extends VistaBase {
                     + ". Está en el pasillo "
                     + ultimoProducto.getPasillo()
             );
+        }else {
+            lectorVoz.hablar("No hay ningún producto para repetir.");
         }
     }
 
@@ -162,8 +202,12 @@ public class VistaSuperMercado extends VistaBase {
             model.addElement(item);
         }
         lstMiLista.setModel(model);
+        if (lista.isEmpty()) {
+            lectorVoz.hablar("Tu lista está vacía.");
+        } else {
+            lectorVoz.hablar("Lista actualizada. Tienes " + lista.size() + " productos.");
+        }
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -472,8 +516,8 @@ public class VistaSuperMercado extends VistaBase {
 
     private void btnAgregarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarListaActionPerformed
         // TODO add your handling code here:
-        if (listenerAgrgarLista != null) {
-            listenerAgrgarLista.actionPerformed(evt);
+        if (listenerAgregarLista != null) {
+            listenerAgregarLista.actionPerformed(evt);
         }
     }//GEN-LAST:event_btnAgregarListaActionPerformed
 
@@ -491,40 +535,6 @@ public class VistaSuperMercado extends VistaBase {
         }
     }//GEN-LAST:event_btnQuitarListaActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(VistaSuperMercado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(VistaSuperMercado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(VistaSuperMercado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(VistaSuperMercado.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new VistaSuperMercado().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarLista;
