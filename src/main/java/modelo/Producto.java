@@ -26,6 +26,11 @@ public class Producto {
         this.cantidad = 1;
     }
 
+    public Producto(String nombre, double precio, String categoria, String pasillo, String descripcion) {
+        this(nombre, precio, categoria, pasillo);
+        this.descripcion = descripcion;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -55,7 +60,9 @@ public class Producto {
     }
 
     public void setPrecio(double precio) {
-        this.precio = precio;
+        if (precio >= 0) {
+            this.precio = precio;
+        }
     }
 
     public void setCategoria(String categoria) {
@@ -71,7 +78,9 @@ public class Producto {
     }
 
     public void setCantidad(int cantidad) {
-        this.cantidad = cantidad;
+        if (cantidad > 0) {
+            this.cantidad = cantidad;
+        }
     }
 
     public double PrecioTotal() {
