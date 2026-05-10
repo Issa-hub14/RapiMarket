@@ -15,37 +15,49 @@ public class ModeloTienda implements IModelo {
     private final List<Producto> catalogoProductos;
     private final Carrito carrito;
     private final List<String> listaDeMercado;
+    private Persona clienteActual;
 
     public ModeloTienda() {
         this.carrito = new Carrito();
         this.listaDeMercado = new ArrayList<>();
         this.catalogoProductos = new ArrayList<>();
+        this.clienteActual = new ClienteInvitado("Invitado");
         cargarProductos();
+    }
+
+    public Persona getClienteActual() {
+        return clienteActual;
+    }
+
+    public void setClienteActual(Persona clienteActual) {
+        if (clienteActual != null) {
+            this.clienteActual = clienteActual;
+        }
     }
 
     private void cargarProductos() {
 
-        agregar("Leche Entera 1L", 3500, "Lácteos", "Pasillo 1, derecha");
-        agregar("Leche Deslactosada 1L", 4200, "Lácteos", "Pasillo 1, derecha");
-        agregar("Yogurt Fresa 200g", 2800, "Lácteos", "Pasillo 1, izquierda");
-        agregar("Queso Campesino 500g", 8500, "Lácteos", "Pasillo 1, izquierda");
+        agregarProductoCatalogo("Leche Entera 1L", 3500, "Lácteos", "Pasillo 1, derecha");
+        agregarProductoCatalogo("Leche Deslactosada 1L", 4200, "Lácteos", "Pasillo 1, derecha");
+        agregarProductoCatalogo("Yogurt Fresa 200g", 2800, "Lácteos", "Pasillo 1, izquierda");
+        agregarProductoCatalogo("Queso Campesino 500g", 8500, "Lácteos", "Pasillo 1, izquierda");
 
-        agregar("Arroz 2kg", 6500, "Granos", "Pasillo 2, derecha");
-        agregar("Frijol Bolo 500g", 4800, "Granos", "Pasillo 2, derecha");
-        agregar("Lenteja 500g", 3900, "Granos", "Pasillo 2, izquierda");
+        agregarProductoCatalogo("Arroz 2kg", 6500, "Granos", "Pasillo 2, derecha");
+        agregarProductoCatalogo("Frijol Bolo 500g", 4800, "Granos", "Pasillo 2, derecha");
+        agregarProductoCatalogo("Lenteja 500g", 3900, "Granos", "Pasillo 2, izquierda");
 
-        agregar("Pan Tajado", 5200, "Panadería", "Pasillo 3, derecha");
-        agregar("Arepa x6", 4500, "Panadería", "Pasillo 3, derecha");
+        agregarProductoCatalogo("Pan Tajado", 5200, "Panadería", "Pasillo 3, derecha");
+        agregarProductoCatalogo("Arepa x6", 4500, "Panadería", "Pasillo 3, derecha");
 
-        agregar("Pechuga de Pollo 1kg", 12000, "Carnes", "Pasillo 4, refrigerados");
-        agregar("Carne Molida 500g", 19500, "Carnes", "Pasillo 4, refrigerados");
+        agregarProductoCatalogo("Pechuga de Pollo 1kg", 12000, "Carnes", "Pasillo 4, refrigerados");
+        agregarProductoCatalogo("Carne Molida 500g", 19500, "Carnes", "Pasillo 4, refrigerados");
 
-        agregar("Jabón Azul 500g", 3200, "Aseo", "Pasillo 5, izquierda");
-        agregar("Detergente 1kg", 15000, "Aseo", "Pasillo 5, izquierda");
-        agregar("Shampoo Savital 400ml", 18500, "Aseo", "Pasillo 5, derecha");
+        agregarProductoCatalogo("Jabón Azul 500g", 3200, "Aseo", "Pasillo 5, izquierda");
+        agregarProductoCatalogo("Detergente 1kg", 15000, "Aseo", "Pasillo 5, izquierda");
+        agregarProductoCatalogo("Shampoo Savital 400ml", 18500, "Aseo", "Pasillo 5, derecha");
     }
 
-    private void agregar(String nom, double pre, String cat, String pasillo) {
+    private void agregarProductoCatalogo(String nom, double pre, String cat, String pasillo) {
         catalogoProductos.add(new Producto(nom, pre, cat, pasillo));
     }
 
