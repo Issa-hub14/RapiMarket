@@ -26,7 +26,7 @@ public class LectorVoz implements IReproducible {
     }
 
     @Override
-    public void hablar(String texto) {
+    public synchronized void hablar(String texto) {
         if (!activo || texto == null || texto.isBlank()) {
             return;
         }
@@ -54,7 +54,7 @@ public class LectorVoz implements IReproducible {
     }
 
     @Override
-    public void detener() {
+    public synchronized void detener() {
         if (procesoActual != null && procesoActual.isAlive()) {
             procesoActual.destroyForcibly();
         }
