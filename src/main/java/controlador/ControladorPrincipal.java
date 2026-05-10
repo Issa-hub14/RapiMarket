@@ -76,7 +76,7 @@ public class ControladorPrincipal {
         }
         vista.setVisible(false);
         vistaPedido.setVisible(true);
-        lectorVoz.hablar("Abriendo compra en línea.");
+        
     }
 
     private void abrirSupermercado() {
@@ -86,7 +86,7 @@ public class ControladorPrincipal {
         }
         vista.setVisible(false);
         vistaSuper.setVisible(true);
-        lectorVoz.hablar("Abriendo guía de supermercado.");
+        
     }
 
     public void iniciar() {
