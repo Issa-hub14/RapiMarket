@@ -27,7 +27,7 @@ public class VistaPrincipal extends VistaBase {
     public VistaPrincipal() {
         super("Asistente de Compras");
         setLocationRelativeTo(null);
-        lectorVoz.hablar("Bienvenido. ¿Qué deseas hacer hoy? Recuerda un click para escuchar, dos para realizar acciones");
+        lectorVoz.hablar("Bienvenido. Qué deseas hacer hoy Recuerda un click para escuchar, otro para realizar acciones");
     }
 
     @Override
@@ -41,7 +41,7 @@ public class VistaPrincipal extends VistaBase {
         chkVoz.setOpaque(false);
 
         aplicarEstiloBoton(btnSupermercado, new Color(255, 255, 255), "Ir al supermercado");
-        aplicarEstiloBoton(btnOnline, new Color(255, 255, 255), "Comprar en línea");
+        aplicarEstiloBoton(btnOnline, new Color(255, 255, 255), "Comprar en linea");
         aplicarEstiloBoton(btnLista, new Color(255, 255, 255), "Mi lista de compras");
     }
 

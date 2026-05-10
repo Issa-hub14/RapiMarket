@@ -29,6 +29,7 @@ public class VistaSuperMercado extends VistaBase {
 
     private Producto ultimoProducto;
     private JButton ultimoBoton = null;
+    private boolean listaLista = false;
 
     public VistaSuperMercado() {
         super("Guía de Supermercado");
@@ -55,9 +56,10 @@ public class VistaSuperMercado extends VistaBase {
         lstMiLista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         lstMiLista.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!e.getValueIsAdjusting()&& listaLista) {
                 String item = lstMiLista.getSelectedValue();
                 if (item != null) {
+                    ultimoBoton = null;
                     lectorVoz.hablar(item + " en tu lista.");
                 }
             }
@@ -196,16 +198,18 @@ public class VistaSuperMercado extends VistaBase {
     }
 
     public void actualizarListaMercado(List<String> lista) {
+        listaLista = false;
         DefaultListModel<String> model = new DefaultListModel<>();
         for (String item : lista) {
             model.addElement(item);
         }
         lstMiLista.setModel(model);
-        if (lista.isEmpty()) {
-            lectorVoz.hablar("Tu lista está vacía.");
-        } else {
-            lectorVoz.hablar("Lista actualizada. Tienes " + lista.size() + " productos.");
-        }
+        listaLista = true;
+        //if (lista.isEmpty()) {
+            //lectorVoz.hablar("Tu lista está vacía.");
+        //} else {
+            //lectorVoz.hablar("Lista actualizada. Tienes " + lista.size() + " productos.");
+        //}
     }
 
     /**

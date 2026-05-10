@@ -78,7 +78,8 @@ public class ReceptorVoz {
     
     public void reproducirGrabacion() {
         try {
-            lectorVoz.hablar("Reproduciendo grabación.");
+            lectorVoz.hablar("Reproduciendo grabación");
+            
             microfono.reproducirAudio();
         } catch (Exception e) {
             System.err.println("Error reproduciendo audio: "+ e.getMessage());

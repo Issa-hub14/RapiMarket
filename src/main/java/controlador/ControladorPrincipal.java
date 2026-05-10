@@ -65,8 +65,6 @@ public class ControladorPrincipal {
                     lectorVoz.hablar("Di: supermercado, en línea, o lista.");
             }
         });
-
-        //receptorVoz.iniciarGrabacion();
     }
 
     private void abrirPedidoOnline() {
