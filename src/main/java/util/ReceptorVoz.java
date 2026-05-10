@@ -41,7 +41,6 @@ public class ReceptorVoz {
 
     private Consumer<Comando> manejadorComando;
     private Consumer<String> manejadorTexto;
-    private boolean grabando = false;
 
     public ReceptorVoz() {
         this.microfono = new ModeloMicrofono();
@@ -57,12 +56,8 @@ public class ReceptorVoz {
     }
 
     public void iniciarGrabacion() {
-        if (grabando) {
-            return;
-        }
         try {
             microfono.iniciarCaptura();
-            grabando = true;
             lectorVoz.hablar("Escuchando. Habla ahora.");
             System.out.println("[ReceptorVoz] Grabación iniciada.");
         } catch (Exception e) {
@@ -71,37 +66,36 @@ public class ReceptorVoz {
         }
     }
 
-    public void detenerYProcesar() {
-        if (!grabando) {
-            return;
+    public void detenerGrabacion() {
+        try {
+            microfono.detenerCaptura();
+            lectorVoz.hablar("Grabación detenida.");
+            System.out.println("[ReceptorVoz] Grabación detenida.");
+        } catch(Exception e){
+           System.err.println("Error deteniendo grabación: " + e.getMessage()); 
         }
-        microfono.detenerCaptura();
-        grabando = false;
-        System.out.println("[ReceptorVoz] Grabación detenida. Analizando...");
-
-        byte[] bytes = microfono.getBytesGrabados();
-        System.out.println("[ReceptorVoz] Bytes capturados: " + bytes.length);
-
-        if (bytes.length == 0) {
-            lectorVoz.hablar("No escuché nada. Intenta de nuevo.");
-            return;
+    }
+    
+    public void reproducirGrabacion() {
+        try {
+            lectorVoz.hablar("Reproduciendo grabación.");
+            microfono.reproducirAudio();
+        } catch (Exception e) {
+            System.err.println("Error reproduciendo audio: "+ e.getMessage());
         }
-
-        lectorVoz.hablar("Audio recibido. Escribe el comando en consola.");
-        procesarDesdeConsolaUnaVez();
     }
 
-    private void procesarDesdeConsolaUnaVez() {
+    private void pedirComandoConsola() {
         new Thread(() -> {
             try {
                 Scanner scanner = new Scanner(System.in);
-                System.out.print(">>> Comando escuchado (simula Sphinx): ");
+                System.out.print(">>> Escribe el comando: ");
                 if (scanner.hasNextLine()) {
                     String texto = scanner.nextLine().toLowerCase().trim();
                     procesarTexto(texto);
                 }
             } catch (Exception e) {
-                System.err.println("[ReceptorVoz] Error leyendo consola: "
+                System.err.println("[ReceptorVoz] Error leyendo comando: "
                         + e.getMessage());
             }
         }).start();
@@ -123,7 +117,7 @@ public class ReceptorVoz {
                 if (manejadorComando != null) {
                     manejadorComando.accept(cmd);
                 }
-                // Si hay algo después → también lo procesa como texto
+                
                 if (!restante.isEmpty() && manejadorTexto != null) {
                     manejadorTexto.accept(restante);
                 }
@@ -131,14 +125,13 @@ public class ReceptorVoz {
             }
         }
 
-        System.out.println("[Texto libre]: " + texto);
+        System.out.println("[Texto detectado]: " + texto);
         if (manejadorTexto != null) {
             manejadorTexto.accept(texto);
         }
     }
 
     public boolean isGrabando() {
-        return grabando;
+        return  microfono.isGrabando();
     }
 }
-
