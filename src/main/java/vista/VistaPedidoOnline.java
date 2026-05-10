@@ -92,8 +92,8 @@ public class VistaPedidoOnline extends VistaBase {
         aplicarEstiloBoton(btnEliminar, new Color(235, 93, 93), "Eliminar del carrito");
         aplicarEstiloBoton(btnLeerCarrito, new Color(72, 112, 32), "Leer carrito en voz alta");
         aplicarEstiloBoton(btnConfirmar, new Color(196, 135, 75), "Confirmar pedido");
-        aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
-        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Micrófono");
+        aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menu");
+        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
@@ -155,13 +155,12 @@ public class VistaPedidoOnline extends VistaBase {
         DefaultListModel<String> model = new DefaultListModel<>();
         if (productos.isEmpty()) {
             model.addElement("Sin resultados. Intenta otra búsqueda.");
-            lectorVoz.hablar("No encontré productos.");
+            lectorVoz.hablar("No se encuentra producto");
         } else {
             for (Producto p : productos) {
                 model.addElement(p.getNombre() + "  —  $" + (int) p.getPrecio());
             }
-           
-            lectorVoz.hablar(productos.size() + " opciones disponibles.");
+            //lectorVoz.hablar(productos.size() + " opciones disponibles.");
         }
         lstResultados.setModel(model);
     }

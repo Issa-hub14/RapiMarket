@@ -66,7 +66,7 @@ public class VistaSuperMercado extends VistaBase {
         });
 
         aplicarEstiloBoton(btnSiguiente, new Color(146, 195, 98), "Siguiente producto");
-        aplicarEstiloBoton(btnRepetir, new Color(235, 93, 93), "Repetir indicación");
+        aplicarEstiloBoton(btnRepetir, new Color(235, 93, 93), "Repetir indicacion");
         aplicarEstiloBoton(btnAgregarLista, new Color(72, 112, 32), "Agregar a mi lista");
         aplicarEstiloBoton(btnQuitarLista, new Color(186, 135, 75), "Quitar de mi lista");
         aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
@@ -189,7 +189,7 @@ public class VistaSuperMercado extends VistaBase {
         if (ultimoProducto != null) {
             lectorVoz.hablar(
                     ultimoProducto.getNombre()
-                    + ". Está en el pasillo "
+                    + ". Está en el  "
                     + ultimoProducto.getPasillo()
             );
         }else {

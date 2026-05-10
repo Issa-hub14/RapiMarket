@@ -72,8 +72,6 @@ public class ControladorPedido {
             List<Producto> resultados = modelo.buscarProductos(texto);
             vista.mostrarResultados(resultados);
         });
-
-        //receptorVoz.iniciarGrabacion();
     }
 
     private void buscar() {
@@ -159,7 +157,7 @@ public class ControladorPedido {
     }
 
     private void volver() {
-        receptorVoz.detenerGrabacion();
+        //receptorVoz.detenerGrabacion();
         vista.setVisible(false);
 
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -173,12 +171,6 @@ public class ControladorPedido {
     }
 
     private void activarMicrofono() {
-        //lectorVoz.hablar("Habla ahora. Tienes 3 segundos.");
-        // vista.actualizarEstado("Escuchando...");
-        // receptorVoz.iniciarGrabacion();
-        // receptorVoz.detenerYProcesar();
-
-        //vista.actualizarEstado("Listo");
         if (receptorVoz.isGrabando()) {
             new Thread(() -> {
                 receptorVoz.detenerGrabacion();

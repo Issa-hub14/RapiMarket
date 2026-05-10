@@ -148,7 +148,7 @@ public class ControladorSuperMercado {
     }
 
     private void volver() {
-        receptorVoz.detenerGrabacion();
+        //receptorVoz.detenerGrabacion();
         vista.setVisible(false);
         javax.swing.SwingUtilities.invokeLater(() -> {
             for (java.awt.Window w : java.awt.Window.getWindows()) {

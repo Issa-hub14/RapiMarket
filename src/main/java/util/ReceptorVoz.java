@@ -59,7 +59,7 @@ public class ReceptorVoz {
         try {
             microfono.iniciarCaptura();
             lectorVoz.hablar("Escuchando. Habla ahora.");
-            System.out.println("[ReceptorVoz] Grabación iniciada.");
+            System.out.println("[ReceptorVoz] Grabacion iniciada.");
         } catch (Exception e) {
             System.err.println("[ReceptorVoz] Error al iniciar mic: " + e.getMessage());
             lectorVoz.hablar("No se pudo acceder al micrófono.");
@@ -69,7 +69,7 @@ public class ReceptorVoz {
     public void detenerGrabacion() {
         try {
             microfono.detenerCaptura();
-            lectorVoz.hablar("Grabación detenida.");
+            lectorVoz.hablar("Grabacion detenida. Reproduciendo Grabacion");
             System.out.println("[ReceptorVoz] Grabación detenida.");
         } catch(Exception e){
            System.err.println("Error deteniendo grabación: " + e.getMessage()); 
@@ -78,7 +78,6 @@ public class ReceptorVoz {
     
     public void reproducirGrabacion() {
         try {
-            lectorVoz.hablar("Reproduciendo grabación");
             
             microfono.reproducirAudio();
         } catch (Exception e) {
