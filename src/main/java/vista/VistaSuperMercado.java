@@ -84,7 +84,6 @@ public class VistaSuperMercado extends VistaBase {
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
-                lectorVoz.hablar(textoVoz);
             }
 
             @Override
