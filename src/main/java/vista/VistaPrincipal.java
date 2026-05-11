@@ -27,7 +27,7 @@ public class VistaPrincipal extends VistaBase {
     public VistaPrincipal() {
         super("Asistente de Compras");
         setLocationRelativeTo(null);
-        lectorVoz.hablar("Bienvenido. Qué deseas hacer hoy Recuerda un click para escuchar, otro para realizar acciones");
+        lectorVoz.hablar("Bienvenido. Que deseas hacer hoy Recuerda un click para escuchar, otro para realizar acciones");
     }
 
     @Override

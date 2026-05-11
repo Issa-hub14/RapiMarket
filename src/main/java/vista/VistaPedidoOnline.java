@@ -34,7 +34,6 @@ public class VistaPedidoOnline extends VistaBase {
     public VistaPedidoOnline() {
         super("Comprar en Línea");
         setLocationRelativeTo(null);
-        lectorVoz.hablar("Modo compra en línea. ¿Qué producto buscas?");
     }
 
     @Override
@@ -160,7 +159,7 @@ public class VistaPedidoOnline extends VistaBase {
             for (Producto p : productos) {
                 model.addElement(p.getNombre() + "  —  $" + (int) p.getPrecio());
             }
-            //lectorVoz.hablar(productos.size() + " opciones disponibles.");
+            
         }
         lstResultados.setModel(model);
     }
@@ -168,7 +167,7 @@ public class VistaPedidoOnline extends VistaBase {
     public void actualizarCarrito(String resumen, double total) {
         txtCarrito.setText(resumen);
         lblTotal.setText("Total: $" + (int) total); // OJO PRECIO
-        lectorVoz.hablar("Carrito actualizado. Total: " + total + " pesos");
+        
     }
 
     public String getTextoBusqueda() {

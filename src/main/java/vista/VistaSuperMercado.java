@@ -70,6 +70,7 @@ public class VistaSuperMercado extends VistaBase {
         aplicarEstiloBoton(btnAgregarLista, new Color(72, 112, 32), "Agregar a mi lista");
         aplicarEstiloBoton(btnQuitarLista, new Color(186, 135, 75), "Quitar de mi lista");
         aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
+        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
@@ -205,11 +206,7 @@ public class VistaSuperMercado extends VistaBase {
         }
         lstMiLista.setModel(model);
         listaLista = true;
-        //if (lista.isEmpty()) {
-            //lectorVoz.hablar("Tu lista está vacía.");
-        //} else {
-            //lectorVoz.hablar("Lista actualizada. Tienes " + lista.size() + " productos.");
-        //}
+        
     }
 
     /**

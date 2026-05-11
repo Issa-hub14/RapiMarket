@@ -32,6 +32,9 @@ public class ControladorPedido {
         configurarVoz();
         vista.mostrarResultados(modelo.obtenerCatalogo());
         actualizarCarritoEnVista();
+        
+        new Thread(() -> {
+        lectorVoz.hablar("Modo compra en línea. Que producto buscas?");}).start();
     }
 
     private void conectarBotones() {
@@ -77,7 +80,7 @@ public class ControladorPedido {
     private void buscar() {
         String termino = vista.getTextoBusqueda();
         if (termino.isBlank()) {
-            lectorVoz.hablar("Escribe o di qué producto buscas.");
+            lectorVoz.hablar("Escribe o di que producto buscas.");
             return;
         }
         List<Producto> resultados = modelo.buscarProductos(termino);
@@ -103,7 +106,7 @@ public class ControladorPedido {
 
             modelo.obtenerCarrito().agregarProducto(p);
             actualizarCarritoEnVista();
-            lectorVoz.hablar(p.getNombre() + " agregado al carrito.");
+            lectorVoz.hablar("Producto agregado "+ nombre+" Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
             vista.actualizarEstado(nombre + " agregado al carrito");
 
         } catch (Exception e) {
@@ -120,13 +123,14 @@ public class ControladorPedido {
         String nombre = seleccionado.split("  —  ")[0].trim();
         modelo.obtenerCarrito().eliminarProducto(nombre);
         actualizarCarritoEnVista();
-        lectorVoz.hablar(nombre + " eliminado del carrito.");
+        lectorVoz.hablar("Producto eliminado "+ nombre+" Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+        
     }
 
     private void confirmarPedido() {
         Carrito carrito = modelo.obtenerCarrito();
         if (carrito.getProductos().isEmpty()) {
-            lectorVoz.hablar("Tu carrito está vacío. Agrega productos primero.");
+            lectorVoz.hablar("Tu carrito esta vacio. Agrega productos primero.");
             return;
         }
 
@@ -145,7 +149,7 @@ public class ControladorPedido {
             if (opcion == javax.swing.JOptionPane.YES_OPTION) {
                 carrito.vaciar();
                 actualizarCarritoEnVista();
-                lectorVoz.hablar("Pedido confirmado. ¡Gracias por tu compra!");
+                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");         
             }
         });
     }
@@ -157,7 +161,7 @@ public class ControladorPedido {
     }
 
     private void volver() {
-        //receptorVoz.detenerGrabacion();
+        
         vista.setVisible(false);
 
         javax.swing.SwingUtilities.invokeLater(() -> {
