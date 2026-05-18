@@ -11,8 +11,7 @@ package controlador;
 import modelo.*;
 import vista.VistaSuperMercado;
 import util.LectorVoz;
-import util.ReceptorVoz;
-import util.ReceptorVoz.Comando;
+import util.ReceptorVozVosk;
 import java.util.List;
 
 public class ControladorSuperMercado {
@@ -20,7 +19,7 @@ public class ControladorSuperMercado {
     private final VistaSuperMercado vista;
     private final IModelo modelo;
     private final LectorVoz lectorVoz;
-    private final ReceptorVoz receptorVoz;
+    private final ReceptorVozVosk receptorVoz;
 
     private int indiceActual = 0;
 
@@ -28,7 +27,7 @@ public class ControladorSuperMercado {
         this.vista = vista;
         this.modelo = modelo;
         this.lectorVoz = LectorVoz.getInstance();
-        this.receptorVoz = new ReceptorVoz();
+        this.receptorVoz = ReceptorVozVosk.getInstance();
 
         conectarBotones();
         configurarVoz();
@@ -148,7 +147,9 @@ public class ControladorSuperMercado {
     }
 
     private void volver() {
-        //receptorVoz.detenerGrabacion();
+        if (receptorVoz.isGrabando()) {
+            receptorVoz.detenerGrabacion();
+        }
         vista.setVisible(false);
         javax.swing.SwingUtilities.invokeLater(() -> {
             for (java.awt.Window w : java.awt.Window.getWindows()) {
@@ -163,22 +164,20 @@ public class ControladorSuperMercado {
     private void actualizarLista() {
         vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
     }
-    
+
     private void manejarMicrofono() {
-    if (receptorVoz.isGrabando()) {
-        new Thread(() -> {
+        if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
-            receptorVoz.reproducirGrabacion();
-            vista.actualizarEstado("Audio reproducido.");
-        }).start();
-        vista.actualizarEstado("Procesando audio...");
-    } else {
-        try {
-            receptorVoz.iniciarGrabacion();
-            vista.actualizarEstado("Grabando... clic de nuevo para detener.");
-        } catch (Exception ex) {
-            vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
+            lectorVoz.hablar("Micrófono desactivado");
+            vista.actualizarEstado("Micrófono desactivado");
+        } else {
+            try {
+                receptorVoz.iniciarGrabacion();
+                lectorVoz.hablar("Micrófono activado. Di un comando o producto");
+                vista.actualizarEstado("Grabando... clic de nuevo para detener.");
+            } catch (Exception ex) {
+                vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
+            }
         }
     }
-}
 }
