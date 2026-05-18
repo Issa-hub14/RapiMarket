@@ -8,9 +8,17 @@ package modelo;
  *
  * @author isabe
  */
-public class ClienteInvitado extends Persona{
+public class ClienteInvitado extends Persona {
+
+    private boolean compraRapida;
+
     public ClienteInvitado(String nombre) {
         super(nombre, "SIN REGISTRO");
+        this.compraRapida = true;
+    }
+
+    public boolean isCompraRapida() {
+        return compraRapida;
     }
 
     @Override
@@ -21,6 +29,6 @@ public class ClienteInvitado extends Persona{
     @Override
     public String toString() {
         return super.toString()
-                + " | Acceso temporal";
+                + " | Compra rapida";
     }
 }

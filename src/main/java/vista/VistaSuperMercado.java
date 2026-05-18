@@ -243,7 +243,6 @@ public class VistaSuperMercado extends VistaBase {
         lstMiLista = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(685, 525));
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 204));
 
