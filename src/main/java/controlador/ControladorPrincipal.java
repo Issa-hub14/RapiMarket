@@ -11,9 +11,11 @@ package controlador;
 import modelo.IModelo;
 import vista.VistaPrincipal;
 import vista.VistaPedidoOnline;
+import vista.VistaUsuario;
 import vista.VistaSuperMercado;
 import util.LectorVoz;
 import util.ReceptorVoz;
+import servicio.ClienteAPIService;
 
 public class ControladorPrincipal {
 
@@ -22,14 +24,16 @@ public class ControladorPrincipal {
     private final LectorVoz lectorVoz;
     private final ReceptorVoz receptorVoz;
 
-    private VistaPedidoOnline vistaPedido;
+    private VistaUsuario vistaUsuario;
     private VistaSuperMercado vistaSuper;
+    private final ClienteAPIService apiService;
 
     public ControladorPrincipal(VistaPrincipal vista, IModelo modelo) {
         this.vista = vista;
         this.modelo = modelo;
         this.lectorVoz = LectorVoz.getInstance();
         this.receptorVoz = new ReceptorVoz();
+        this.apiService = new ClienteAPIService();
 
         conectarBotones();
         configurarVoz();
@@ -68,13 +72,13 @@ public class ControladorPrincipal {
     }
 
     private void abrirPedidoOnline() {
-        if (vistaPedido == null) {
-            vistaPedido = new VistaPedidoOnline();
-            new ControladorPedido(vistaPedido, modelo);
+        if (vistaUsuario == null) {
+            vistaUsuario = new VistaUsuario();
+            new ControladorUsuario(vistaUsuario, apiService, modelo);
         }
         vista.setVisible(false);
-        vistaPedido.setVisible(true);
-        
+        vistaUsuario.setVisible(true);
+             
     }
 
     private void abrirSupermercado() {
