@@ -17,6 +17,7 @@ public class LectorVoz implements IReproducible {
 
     private static LectorVoz instancia;
     private boolean activo = true;
+    private volatile boolean hablando = false;
     private Process procesoActual;
 
     private LectorVoz() {
@@ -39,6 +40,7 @@ public class LectorVoz implements IReproducible {
 
         new Thread(() -> {
             try {
+                hablando = true;
                 String os = System.getProperty("os.name").toLowerCase();
                 if (os.contains("win")) {
                     String textoLimpio = texto.replace("\"", "\\\"");
@@ -82,6 +84,9 @@ public class LectorVoz implements IReproducible {
 
             } catch (Exception e) {
                 System.err.println("[LectorVoz] Error: " + e.getMessage());
+            
+            } finally {
+                hablando = false;
             }
         }).start();
     }
@@ -91,6 +96,11 @@ public class LectorVoz implements IReproducible {
         if (procesoActual != null && procesoActual.isAlive()) {
             procesoActual.destroyForcibly();
         }
+        hablando = false;
+    }
+    
+    public boolean isHablando() {
+        return hablando;
     }
     
     @Override

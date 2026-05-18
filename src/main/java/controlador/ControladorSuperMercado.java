@@ -35,7 +35,7 @@ public class ControladorSuperMercado {
     }
 
     private void conectarBotones() {
-        vista.addBtnBuscarListener(e -> buscarProducto());
+        vista.addBtnBuscarListener(e -> buscarProducto(vista.getTextoBusqueda()));
         vista.addBtnSiguienteListener(e -> siguienteProducto());
         vista.addBtnRepetirListener(e -> vista.repetirIndicacion());
         vista.addBtnAgregarListaListener(e -> agregarALista());
@@ -46,9 +46,10 @@ public class ControladorSuperMercado {
 
     private void configurarVoz() {
         receptorVoz.setManejadorComando(cmd -> {
+            String texto = limpiarComando(receptorVoz.getUltimoTextoReconocido());
             switch (cmd) {
                 case BUSCAR ->
-                    buscarProducto();
+                    buscarProducto(texto);
                 case SIGUIENTE ->
                     siguienteProducto();
                 case ANTERIOR ->
@@ -68,30 +69,54 @@ public class ControladorSuperMercado {
         });
 
         receptorVoz.setManejadorTexto(texto -> {
-            List<Producto> resultados = modelo.buscarProductos(texto);
-            if (!resultados.isEmpty()) {
-                vista.mostrarInfoProducto(resultados.get(0));
-            } else {
-                lectorVoz.hablar("No encontré " + texto + " en el catálogo.");
+            if (texto == null || texto.isBlank()) {
+                return;
             }
+            buscarProducto(texto);
         });
+
     }
 
-    private void buscarProducto() {
-        String termino = vista.getTextoBusqueda();
-        if (termino.isBlank()) {
-            lectorVoz.hablar("Di o escribe qué producto buscas.");
+    private String limpiarComando(String texto) {
+        if (texto == null) {
+            return "";
+        }
+        texto = texto.toLowerCase();
+
+        texto = texto.replace("quiero", "");
+        texto = texto.replace("buscar", "");
+        texto = texto.replace("busca", "");
+        texto = texto.replace("agregar", "");
+        texto = texto.replace("añadir", "");
+        texto = texto.replace("el producto", "");
+        texto = texto.replace("producto", "");
+
+        return texto.trim();
+    }
+
+    private void buscarProducto(String texto) {
+        if (texto == null || texto.isBlank()) {
+            lectorVoz.hablar("Di o escribe el producto que deseas buscar.");
             return;
         }
+
         try {
-            List<Producto> resultados = modelo.buscarProductos(termino);
+            vista.setTextoBusqueda(texto);
+            List<Producto> resultados = modelo.buscarProductos(texto);
+
             if (resultados.isEmpty()) {
                 vista.mostrarInfoProducto(null);
+                lectorVoz.hablar("No encontré " + texto);
+
             } else {
-                vista.mostrarInfoProducto(resultados.get(0));
+                Producto producto = resultados.get(0);
+                vista.mostrarInfoProducto(producto);
             }
         } catch (Exception e) {
-            vista.mostrarError("Error al buscar: " + e.getMessage());
+            vista.mostrarError(
+                    "Error al buscar: "
+                    + e.getMessage()
+            );
         }
     }
 

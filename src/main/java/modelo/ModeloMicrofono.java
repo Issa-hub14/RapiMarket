@@ -22,7 +22,7 @@ public class ModeloMicrofono implements Runnable {
     private Thread hiloGrabacion;
 
     public ModeloMicrofono() {
-        formato = new AudioFormat(44100.0f, 16, 1, true, false);
+        formato = new AudioFormat(16000, 16, 1, true, false);
         grabando = false;
     }
 
@@ -31,6 +31,9 @@ public class ModeloMicrofono implements Runnable {
             return;
         }
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, formato);
+        if (!AudioSystem.isLineSupported(info)) {
+            throw new LineUnavailableException("Formato de micrófono no soportado.");
+        }
         microfono = (TargetDataLine) AudioSystem.getLine(info);
 
         microfono.open(formato);
@@ -39,6 +42,8 @@ public class ModeloMicrofono implements Runnable {
         grabando = true;
 
         hiloGrabacion = new Thread(this);
+        hiloGrabacion.setDaemon(true); //revisar
+
         hiloGrabacion.start();
         System.out.println("Grabación iniciada...");
     }
@@ -49,20 +54,38 @@ public class ModeloMicrofono implements Runnable {
         }
 
         grabando = false;
-        if (microfono != null && microfono.isOpen()) {
-            microfono.stop();
-            microfono.close();
+        try {
+            if (microfono != null) {
+                microfono.stop();
+            }
+            if (hiloGrabacion != null && hiloGrabacion.isAlive()) {
+                hiloGrabacion.join();
+            }
+            if (microfono != null) {
+                microfono.close();
+                microfono = null;
+            }
+            System.out.println("[Micrófono] Grabación detenida.");
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+
+            System.err.println("[Micrófono] Error deteniendo hilo: " + e.getMessage());
         }
-        System.out.println("Grabación detenida.");
     }
 
     @Override
     public void run() {
         byte[] buffer = new byte[1024];
-        while (grabando) {
-            int bytesLeidos = microfono.read(buffer, 0, buffer.length);
-            if (bytesLeidos > 0) {
-                flujoSalida.write(buffer, 0, bytesLeidos);
+        while (grabando && microfono != null) {
+            try {
+                int bytesLeidos = microfono.read(buffer, 0, buffer.length);
+                if (bytesLeidos > 0) {
+                    flujoSalida.write(buffer, 0, bytesLeidos);
+                }
+            } catch (Exception e) {
+                System.err.println( "[Micrófono] Error leyendo audio: " + e.getMessage());
+                break;
             }
         }
     }
@@ -73,7 +96,7 @@ public class ModeloMicrofono implements Runnable {
             return;
         }
         byte[] datosAudio = flujoSalida.toByteArray();
-        
+
         ByteArrayInputStream flujoEntrada = new ByteArrayInputStream(datosAudio);
         AudioInputStream audioStream = new AudioInputStream(
                 flujoEntrada, formato, datosAudio.length / formato.getFrameSize());
@@ -81,11 +104,11 @@ public class ModeloMicrofono implements Runnable {
         SourceDataLine altavoces = (SourceDataLine) AudioSystem.getLine(infoSalida);
         altavoces.open(formato);
         altavoces.start();
-        
+
         int tamanoBuffer = 1024;
         byte[] buffer = new byte[tamanoBuffer];
         int bytesLeidos;
-        
+
         while ((bytesLeidos = audioStream.read(buffer, 0, buffer.length)) != -1) {
             altavoces.write(buffer, 0, bytesLeidos);
         }

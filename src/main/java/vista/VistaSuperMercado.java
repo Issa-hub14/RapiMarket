@@ -56,7 +56,7 @@ public class VistaSuperMercado extends VistaBase {
         lstMiLista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         lstMiLista.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()&& listaLista) {
+            if (!e.getValueIsAdjusting() && listaLista) {
                 String item = lstMiLista.getSelectedValue();
                 if (item != null) {
                     ultimoBoton = null;
@@ -137,6 +137,10 @@ public class VistaSuperMercado extends VistaBase {
         return lstMiLista.getSelectedValue();
     }
 
+    public void setTextoBusqueda(String texto) {
+        txtBuscar.setText(texto);
+    }
+
     public void addBtnBuscarListener(ActionListener l) {
         this.listenerBuscar = l;
     }
@@ -193,7 +197,7 @@ public class VistaSuperMercado extends VistaBase {
                     + ". Está en el  "
                     + ultimoProducto.getPasillo()
             );
-        }else {
+        } else {
             lectorVoz.hablar("No hay ningún producto para repetir.");
         }
     }
@@ -206,7 +210,7 @@ public class VistaSuperMercado extends VistaBase {
         }
         lstMiLista.setModel(model);
         listaLista = true;
-        
+
     }
 
     /**

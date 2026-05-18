@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import util.LectorVoz;
 
 public class ReceptorVozVosk {
 
@@ -25,9 +26,13 @@ public class ReceptorVozVosk {
     private Model model;
     private Recognizer recognizer;
     private Thread grabacionThread;
+    private LectorVoz lectorVoz;
 
     private Consumer<String> manejadorTexto;
     private Consumer<Comando> manejadorComando;
+
+    private String ultimoTextoReconocido = "";
+
     private boolean activo = true;
 
     private Map<String, Comando> mapaComandos = new HashMap<>();
@@ -37,6 +42,7 @@ public class ReceptorVozVosk {
     }
 
     private ReceptorVozVosk() {
+        lectorVoz = LectorVoz.getInstance();
         cargarModelo();
         inicializarComandos();
     }
@@ -75,7 +81,19 @@ public class ReceptorVozVosk {
                 System.err.println("[Vosk] Modelo no encontrado en: " + rutaModelo);
                 return;
             }
+            //editado
+            File modeloDir = new File(rutaModelo);
+            if (!modeloDir.exists() || !modeloDir.isDirectory()) {
+                System.err.println("[Vosk] Modelo NO encontrado en: " + rutaModelo);
+                return;
+            }
 
+            // Verificar que tenga archivos
+            if (modeloDir.listFiles().length == 0) {
+                System.err.println("[Vosk] El directorio del modelo está vacío");
+                return;
+            }
+            //editado
             model = new Model(rutaModelo);
             System.out.println("[Vosk] Modelo cargado correctamente");
         } catch (Exception e) {
@@ -105,6 +123,7 @@ public class ReceptorVozVosk {
 
     public void iniciarGrabacion() {
         if (grabando || model == null) {
+            System.err.println("[Vosk] No inicia: grabando=" + grabando + " model=" + model);
             return;
         }
 
@@ -126,43 +145,73 @@ public class ReceptorVozVosk {
 
             grabacionThread = new Thread(() -> {
                 byte[] data = new byte[4096];
-                //StringBuilder acumulador = new StringBuilder();
 
                 while (grabando) {
-                    int bytesLeidos = microphone.read(data, 0, data.length);
-                    if (bytesLeidos > 0) {
-                        if (recognizer.acceptWaveForm(data, bytesLeidos)) {
-                            String resultado = recognizer.getResult();
-                            String texto = extraerTexto(resultado);
+                    try {
+                        if (lectorVoz.isHablando()) {
+                            recognizer.reset();
+                            Thread.sleep(100);
+                            continue;
+                        }
 
-                            if (texto != null && !texto.isEmpty()) {
-                                System.out.println("[Vosk] Texto: " + texto);
+                        int bytesLeidos = microphone.read(data, 0, data.length);
 
-                                // Primero verificar si es un comando
-                                Comando cmd = textoAComando(texto);
-                                if (cmd != null && manejadorComando != null) {
-                                    System.out.println("[Vosk] Comando detectado: " + cmd);
-                                    manejadorComando.accept(cmd);
-                                } 
-                                // Si no es comando, es texto libre (búsqueda)
-                                else if (manejadorTexto != null) {
-                                    manejadorTexto.accept(texto);
+                        if (bytesLeidos <= 0) {
+                            continue;
+                        }
+
+                        if (bytesLeidos > 0) {
+                            if (recognizer.acceptWaveForm(data, bytesLeidos)) {
+                                String resultado = recognizer.getResult();
+                                System.out.println(
+                                        "[Vosk] JSON FINAL: "
+                                        + resultado
+                                );
+                                String texto = extraerTexto(resultado);
+                                procesarTexto(texto);
+                            } else {
+                                // RESULTADO PARCIAL
+                                String parcial = recognizer.getPartialResult();
+                                String textoParcial = extraerParcial(parcial);
+
+                                if (textoParcial != null && !textoParcial.isBlank()) {
+                                    System.out.println("[Vosk] Parcial: " + textoParcial);
                                 }
                             }
                         }
+                    } catch (Exception e) {
+                        System.err.println("[Vosk] Error en reconocimiento: " + e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             });
-            
+
             grabacionThread.start();
             System.out.println("[Vosk] Grabación iniciada");
-            
+
         } catch (Exception e) {
             System.err.println("[Vosk] Error al iniciar: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
+    private void procesarTexto(String texto) {
+
+        if (texto == null || texto.isBlank()) {
+            return;
+        }
+        ultimoTextoReconocido = texto;
+        System.out.println("[Vosk] Texto reconocido: " + texto);
+        Comando cmd = textoAComando(texto);
+
+        if (cmd != null && manejadorComando != null) {
+            System.out.println("[Vosk] Comando detectado: " + cmd);
+            manejadorComando.accept(cmd);
+
+        } else if (manejadorTexto != null) {
+            manejadorTexto.accept(texto);
+        }
+    }
 
     private String extraerTexto(String json) {
 
@@ -178,25 +227,54 @@ public class ReceptorVozVosk {
         return null;
     }
 
+    private String extraerParcial(String json) {
+
+        try {
+            int inicio = json.indexOf("\"partial\":\"") + 11;
+            int fin = json.indexOf("\"", inicio);
+            if (inicio > 11 && fin > inicio) {
+                return json.substring(inicio, fin);
+            }
+
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
     public void detenerGrabacion() {
         grabando = false;
-        if (grabacionThread != null) {
-            try {
-                grabacionThread.interrupt();
-            } catch (Exception e) {
+        try {
+            if (microphone != null) {
+                microphone.stop();
             }
+
+            if (grabacionThread != null && grabacionThread.isAlive()) {
+                grabacionThread.join();
+            }
+
+            if (microphone != null) {
+                microphone.close();
+                microphone = null;
+            }
+
+            if (recognizer != null) {
+                recognizer.close();
+                recognizer = null;
+            }
+            System.out.println("[Vosk] Grabación detenida");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (recognizer != null) {
-            recognizer.close();
-        }
-        if (microphone != null) {
-            microphone.close();
-        }
-        System.out.println("[Vosk] Grabación detenida");
     }
 
     public boolean isGrabando() {
         return grabando;
+    }
+
+    public String getUltimoTextoReconocido() {
+        return ultimoTextoReconocido;
     }
 
     public void cerrar() {
