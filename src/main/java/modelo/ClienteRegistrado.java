@@ -12,11 +12,15 @@ public class ClienteRegistrado extends Persona {
 
     private int puntos;
     private String direccion;
+    private String correo;
+    private String telefono;
 
-    public ClienteRegistrado(String nombre, String identificacion, String direccion) {
+    public ClienteRegistrado(String nombre, String identificacion, String direccion, String correo, String telefono) {
         super(nombre, identificacion);
 
         this.direccion = direccion;
+        this.correo = correo;
+        this.telefono = telefono;
         this.puntos = 0;
     }
 
@@ -39,6 +43,14 @@ public class ClienteRegistrado extends Persona {
             this.direccion = direccion;
         }
     }
+    
+    public String getCorreo() {
+        return correo;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
 
     @Override
     public String obtenerTipoCliente() {
@@ -48,9 +60,9 @@ public class ClienteRegistrado extends Persona {
     @Override
     public String toString() {
         return super.toString()
-                + " | Dirección: "
-                + direccion
-                + " | Puntos: "
-                + puntos;
+                + " | Dirección: "+ direccion
+                + " | Correo: " + correo
+                + " | Teléfono: " + telefono
+                + " | Puntos: " + puntos;
     }
 }

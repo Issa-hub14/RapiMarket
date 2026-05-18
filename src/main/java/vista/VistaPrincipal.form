@@ -63,10 +63,10 @@
                               <Component id="jLabel2" alignment="1" min="-2" pref="42" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="btnOnline" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnSupermercado" min="-2" max="-2" attributes="0"/>
-                              <Component id="btnLista" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="btnSupermercado" alignment="0" pref="370" max="32767" attributes="0"/>
+                              <Component id="btnOnline" alignment="0" max="32767" attributes="0"/>
+                              <Component id="btnLista" alignment="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
