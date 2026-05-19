@@ -85,7 +85,7 @@ public class ControladorUsuario {
         vista.dispose();
 
         VistaPedidoOnline pedido = new VistaPedidoOnline();
-        new ControladorPedido(pedido, modelo);
+        new ControladorPedido(pedido, modelo, clienteActual);
         pedido.setVisible(true);
 
     }
@@ -105,7 +105,7 @@ public class ControladorUsuario {
         
 
         VistaPedidoOnline pedido = new VistaPedidoOnline();
-        new ControladorPedido(pedido, modelo);
+        new ControladorPedido(pedido, modelo, clienteActual);
         pedido.setVisible(true);
 
     }

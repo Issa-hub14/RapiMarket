@@ -14,6 +14,7 @@ import util.LectorVoz;
 import util.ReceptorVoz;
 import util.ReceptorVoz.Comando;
 import java.util.List;
+import servicio.PuntosDBService;
 
 public class ControladorPedido {
 
@@ -21,20 +22,25 @@ public class ControladorPedido {
     private final IModelo modelo;
     private final LectorVoz lectorVoz;
     private final ReceptorVoz receptorVoz;
+    private final PuntosDBService puntosDBService;
+    private final ClienteRegistrado clienteActual;
 
-    public ControladorPedido(VistaPedidoOnline vista, IModelo modelo) {
+    public ControladorPedido(VistaPedidoOnline vista, IModelo modelo, ClienteRegistrado clienteActual) {
         this.vista = vista;
         this.modelo = modelo;
         this.lectorVoz = LectorVoz.getInstance();
         this.receptorVoz = new ReceptorVoz();
+        this.puntosDBService = new PuntosDBService();
+        this.clienteActual = clienteActual;
 
         conectarBotones();
         configurarVoz();
         vista.mostrarResultados(modelo.obtenerCatalogo());
         actualizarCarritoEnVista();
-        
+
         new Thread(() -> {
-        lectorVoz.hablar("Modo compra en línea. Que producto buscas?");}).start();
+            lectorVoz.hablar("Modo compra en línea. Que producto buscas?");
+        }).start();
     }
 
     private void conectarBotones() {
@@ -106,7 +112,7 @@ public class ControladorPedido {
 
             modelo.obtenerCarrito().agregarProducto(p);
             actualizarCarritoEnVista();
-            lectorVoz.hablar("Producto agregado "+ nombre+" Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+            lectorVoz.hablar("Producto agregado " + nombre + " Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
             vista.actualizarEstado(nombre + " agregado al carrito");
 
         } catch (Exception e) {
@@ -123,8 +129,8 @@ public class ControladorPedido {
         String nombre = seleccionado.split("  —  ")[0].trim();
         modelo.obtenerCarrito().eliminarProducto(nombre);
         actualizarCarritoEnVista();
-        lectorVoz.hablar("Producto eliminado "+ nombre+" Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
-        
+        lectorVoz.hablar("Producto eliminado " + nombre + " Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+
     }
 
     private void confirmarPedido() {
@@ -147,9 +153,14 @@ public class ControladorPedido {
                     javax.swing.JOptionPane.YES_NO_OPTION
             );
             if (opcion == javax.swing.JOptionPane.YES_OPTION) {
+                double totalCompra= carrito.obtenerTotal();
+
+                int puntosGanados= (int) totalCompra / 1000;
+                int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra );
+                
                 carrito.vaciar();
                 actualizarCarritoEnVista();
-                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");         
+                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
             }
         });
     }
@@ -161,7 +172,7 @@ public class ControladorPedido {
     }
 
     private void volver() {
-        
+
         vista.setVisible(false);
 
         javax.swing.SwingUtilities.invokeLater(() -> {

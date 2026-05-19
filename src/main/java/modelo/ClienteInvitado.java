@@ -13,7 +13,7 @@ public class ClienteInvitado extends Persona {
     private boolean compraRapida;
 
     public ClienteInvitado(String nombre) {
-        super(nombre, "SIN REGISTRO");
+        super(nombre, 0);
         this.compraRapida = true;
     }
 

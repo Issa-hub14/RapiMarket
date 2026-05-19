@@ -11,11 +11,10 @@ package modelo;
 public abstract class Persona {
 
     protected String nombre;
-    protected String id;
+    protected int id;
     protected boolean accesoActivo;
 
-    public Persona(String nombre,
-            String id) {
+    public Persona(String nombre, int id) {
 
         this.nombre = nombre;
         this.id = id;
@@ -32,14 +31,14 @@ public abstract class Persona {
         }
     }
 
-    public String getIdentificacion() {
+    public int getId() {
         return id;
     }
 
-    public void setIdentificacion(String identi) {
-        if (identi != null) {
+    public void setId(int identi) {
+        
             this.id = identi;
-        }
+        
     }
 
     public boolean isAccesibilidadActiva() {

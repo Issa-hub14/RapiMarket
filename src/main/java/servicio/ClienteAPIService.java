@@ -43,7 +43,7 @@ public class ClienteAPIService {
         JSONObject jsonObject = new JSONObject(jsonString);
         String nombre = jsonObject.getString("firstName") + " " + jsonObject.getString("lastName");
 
-        String identificacion = String.valueOf(jsonObject.getInt("id"));
+        int identificacion = jsonObject.getInt("id");
 
         String direccion = jsonObject.getJSONObject("address").getString("address");
 

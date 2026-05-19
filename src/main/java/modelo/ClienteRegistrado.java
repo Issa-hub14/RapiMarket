@@ -15,7 +15,7 @@ public class ClienteRegistrado extends Persona {
     private String correo;
     private String telefono;
 
-    public ClienteRegistrado(String nombre, String identificacion, String direccion, String correo, String telefono) {
+    public ClienteRegistrado(String nombre, int identificacion, String direccion, String correo, String telefono) {
         super(nombre, identificacion);
 
         this.direccion = direccion;
