@@ -12,7 +12,7 @@ import java.sql.*;
 
 public class PuntosDBService {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/rapimarket";
+    private static final String URL = "jdbc:mysql://localhost:3306/rapimarket_db";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 

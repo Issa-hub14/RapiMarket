@@ -160,7 +160,8 @@ public class ControladorPedido {
                 
                 carrito.vaciar();
                 actualizarCarritoEnVista();
-                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Ahora tienes" + puntosTotales + " puntos acumulados. "
+                        + "Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
             }
         });
     }
