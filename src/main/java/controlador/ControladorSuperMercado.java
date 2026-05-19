@@ -31,17 +31,16 @@ public class ControladorSuperMercado {
 
         conectarBotones();
         configurarVoz();
-        actualizarLista();
+        refrescarLista();
     }
 
     private void conectarBotones() {
         vista.addBtnBuscarListener(e -> buscarProducto(vista.getTextoBusqueda()));
         vista.addBtnSiguienteListener(e -> siguienteProducto());
         vista.addBtnRepetirListener(e -> vista.repetirIndicacion());
-        vista.addBtnAgregarListaListener(e -> agregarALista());
-        vista.addBtnQuitarListaListener(e -> quitarDeLista());
         vista.addBtnVolverListener(e -> volver());
         vista.addBtnMicrofonoListener(e -> manejarMicrofono());
+        vista.addSeleccionListaListener(e -> mostrarProductoDesdeLista(e.getActionCommand()));
     }
 
     private void configurarVoz() {
@@ -56,15 +55,11 @@ public class ControladorSuperMercado {
                     anteriorProducto();
                 case REPETIR ->
                     vista.repetirIndicacion();
-                case AGREGAR ->
-                    agregarALista();
-                case ELIMINAR ->
-                    quitarDeLista();
                 case VOLVER ->
                     volver();
                 default ->
                     lectorVoz.hablar(
-                            "Di: buscar, siguiente, anterior, repetir, agregar, quitar o volver.");
+                            "Di: buscar, siguiente, anterior, repetir, o volver.");
             }
         });
 
@@ -112,6 +107,7 @@ public class ControladorSuperMercado {
                 Producto producto = resultados.get(0);
                 vista.mostrarInfoProducto(producto);
             }
+            refrescarLista();
         } catch (Exception e) {
             vista.mostrarError(
                     "Error al buscar: "
@@ -120,20 +116,27 @@ public class ControladorSuperMercado {
         }
     }
 
+    public void refrescarLista() {
+        vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
+    }
+
     private void siguienteProducto() {
         List<String> lista = modelo.obtenerListaDeMercado();
         if (lista.isEmpty()) {
             lectorVoz.hablar("Tu lista de compras está vacía.");
             return;
         }
+        indiceActual ++;
         if (indiceActual >= lista.size()) {
             indiceActual = 0;
             lectorVoz.hablar("Fin de la lista. Volviendo al primer producto.");
+            return; 
         }
         String nombreProducto = lista.get(indiceActual);
         Producto p = modelo.buscarProductoPorNombre(nombreProducto);
         vista.mostrarInfoProducto(p);
-        indiceActual++;
+        
+        refrescarLista();
     }
 
     private void anteriorProducto() {
@@ -144,31 +147,7 @@ public class ControladorSuperMercado {
         }
         indiceActual = Math.max(0, indiceActual - 2);
         siguienteProducto();
-    }
-
-    private void agregarALista() {
-        String texto = vista.getTextoBusqueda().trim();
-        if (texto.isBlank()) {
-            lectorVoz.hablar("Escribe o di el nombre del producto a agregar a la lista.");
-            return;
-        }
-        modelo.agregarAListaMercado(texto);
-        actualizarLista();
-        lectorVoz.hablar(texto + " agregado a tu lista de compras.");
-    }
-
-    private void quitarDeLista() {
-        String item = vista.getItemListaSeleccionado();
-        if (item == null) {
-            lectorVoz.hablar("Selecciona un producto de la lista para quitarlo.");
-            return;
-        }
-        modelo.eliminarDeListaMercado(item);
-        actualizarLista();
-        lectorVoz.hablar(item + " quitado de tu lista.");
-        if (indiceActual > 0) {
-            indiceActual--;
-        }
+        refrescarLista();
     }
 
     private void volver() {
@@ -186,10 +165,6 @@ public class ControladorSuperMercado {
         });
     }
 
-    private void actualizarLista() {
-        vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
-    }
-
     private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -204,5 +179,17 @@ public class ControladorSuperMercado {
                 vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
             }
         }
+    }
+
+    private void mostrarProductoDesdeLista(String nombreProducto) {
+        List<String>lista = modelo.obtenerListaDeMercado();
+        indiceActual = lista.indexOf(nombreProducto);
+        Producto p = modelo.buscarProductoPorNombre(nombreProducto);
+        if (p == null) {
+            lectorVoz.hablar("Producto no encontrado en catálogo");
+            return;
+        }
+
+        vista.mostrarInfoProducto(p);
     }
 }

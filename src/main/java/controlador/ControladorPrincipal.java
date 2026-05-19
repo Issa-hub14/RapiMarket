@@ -10,7 +10,7 @@ package controlador;
  */
 import modelo.IModelo;
 import vista.VistaPrincipal;
-import vista.VistaPedidoOnline;
+import vista.VistaListaCompras;
 import vista.VistaUsuario;
 import vista.VistaSuperMercado;
 import util.LectorVoz;
@@ -23,9 +23,11 @@ public class ControladorPrincipal {
     private final IModelo modelo;
     private final LectorVoz lectorVoz;
     private final ReceptorVoz receptorVoz;
+    private ControladorSuperMercado controladorSuper;
 
     private VistaUsuario vistaUsuario;
     private VistaSuperMercado vistaSuper;
+    private VistaListaCompras vistaLista;
     private final ClienteAPIService apiService;
 
     public ControladorPrincipal(VistaPrincipal vista, IModelo modelo) {
@@ -36,7 +38,7 @@ public class ControladorPrincipal {
         this.apiService = new ClienteAPIService();
 
         conectarBotones();
-        configurarVoz();
+
     }
 
     private void conectarBotones() {
@@ -45,7 +47,7 @@ public class ControladorPrincipal {
         vista.addBtnOnlineListener(e -> abrirPedidoOnline());
 
         vista.addBtnListaListener(e -> {
-            abrirSupermercado();
+            abrirLista();
             lectorVoz.hablar("Mostrando tu lista de compras.");
         });
 
@@ -53,21 +55,6 @@ public class ControladorPrincipal {
             lectorVoz.setActivo(vista.isVozActiva());
             String estado = vista.isVozActiva() ? "activada" : "desactivada";
             lectorVoz.hablar("Voz " + estado);
-        });
-    }
-
-    private void configurarVoz() {
-        receptorVoz.setManejadorComando(cmd -> {
-            switch (cmd) {
-                case BUSCAR ->
-                    abrirPedidoOnline();
-                case SIGUIENTE ->
-                    abrirSupermercado();
-                case VOLVER ->
-                    lectorVoz.hablar("Ya estás en el menú principal.");
-                default ->
-                    lectorVoz.hablar("Di: supermercado, en línea, o lista.");
-            }
         });
     }
 
@@ -84,10 +71,21 @@ public class ControladorPrincipal {
     private void abrirSupermercado() {
         if (vistaSuper == null) {
             vistaSuper = new VistaSuperMercado();
-            new ControladorSuperMercado(vistaSuper, modelo);
+            controladorSuper = new ControladorSuperMercado(vistaSuper, modelo);
         }
+        controladorSuper.refrescarLista(); 
         vista.setVisible(false);
         vistaSuper.setVisible(true);
+        
+    }
+    
+    private void abrirLista() {
+        if (vistaLista == null) {
+            vistaLista = new VistaListaCompras();
+            new ControladorListaCompras(vistaLista, modelo);
+        }
+        vista.setVisible(false);
+        vistaLista.setVisible(true);
         
     }
 

@@ -22,10 +22,9 @@ public class VistaSuperMercado extends VistaBase {
     private ActionListener listenerBuscar;
     private ActionListener listenerSiguiente;
     private ActionListener listenerRepetir;
-    private ActionListener listenerAgregarLista;
-    private ActionListener listenerQuitarLista;
     private ActionListener listenerMicrofono;
     private ActionListener listenerVolver;
+    private ActionListener listenerSeleccionLista;
 
     private Producto ultimoProducto;
     private JButton ultimoBoton = null;
@@ -58,17 +57,15 @@ public class VistaSuperMercado extends VistaBase {
         lstMiLista.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && listaLista) {
                 String item = lstMiLista.getSelectedValue();
-                if (item != null) {
-                    ultimoBoton = null;
-                    lectorVoz.hablar(item + " en tu lista.");
+                if (item != null && listenerSeleccionLista != null) {
+                    listenerSeleccionLista.actionPerformed(new ActionEvent(lstMiLista, ActionEvent.ACTION_PERFORMED, item));
+                   
                 }
             }
         });
 
         aplicarEstiloBoton(btnSiguiente, new Color(146, 195, 98), "Siguiente producto");
         aplicarEstiloBoton(btnRepetir, new Color(235, 93, 93), "Repetir indicacion");
-        aplicarEstiloBoton(btnAgregarLista, new Color(72, 112, 32), "Agregar a mi lista");
-        aplicarEstiloBoton(btnQuitarLista, new Color(186, 135, 75), "Quitar de mi lista");
         aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
         aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
@@ -113,12 +110,6 @@ public class VistaSuperMercado extends VistaBase {
                 if (btn == btnRepetir && listenerRepetir != null) {
                     listenerRepetir.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
                 }
-                if (btn == btnAgregarLista && listenerAgregarLista != null) {
-                    listenerAgregarLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
-                }
-                if (btn == btnQuitarLista && listenerQuitarLista != null) {
-                    listenerQuitarLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
-                }
                 if (btn == btnVolver && listenerVolver != null) {
                     listenerVolver.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
                 }
@@ -153,20 +144,16 @@ public class VistaSuperMercado extends VistaBase {
         this.listenerRepetir = l;
     }
 
-    public void addBtnAgregarListaListener(ActionListener l) {
-        this.listenerAgregarLista = l;
-    }
-
-    public void addBtnQuitarListaListener(ActionListener l) {
-        this.listenerQuitarLista = l;
-    }
-
     public void addBtnVolverListener(ActionListener l) {
         this.listenerVolver = l;
     }
 
     public void addBtnMicrofonoListener(ActionListener l) {
         this.listenerMicrofono = l;
+    }
+    
+    public void addSeleccionListaListener(ActionListener listener){
+        this.listenerSeleccionLista = listener;
     }
 
     public void mostrarInfoProducto(Producto p) {
@@ -235,8 +222,6 @@ public class VistaSuperMercado extends VistaBase {
         lblPrecio = new javax.swing.JLabel();
         btnSiguiente = new javax.swing.JButton();
         btnRepetir = new javax.swing.JButton();
-        btnAgregarLista = new javax.swing.JButton();
-        btnQuitarLista = new javax.swing.JButton();
         btnVolver = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -355,28 +340,6 @@ public class VistaSuperMercado extends VistaBase {
             }
         });
 
-        btnAgregarLista.setBackground(new java.awt.Color(72, 112, 32));
-        btnAgregarLista.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnAgregarLista.setForeground(new java.awt.Color(255, 255, 255));
-        btnAgregarLista.setText("AGREGAR A LISTA");
-        btnAgregarLista.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnAgregarLista.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAgregarListaActionPerformed(evt);
-            }
-        });
-
-        btnQuitarLista.setBackground(new java.awt.Color(196, 135, 75));
-        btnQuitarLista.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnQuitarLista.setForeground(new java.awt.Color(255, 255, 255));
-        btnQuitarLista.setText("QUITAR DE LISTA");
-        btnQuitarLista.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnQuitarLista.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnQuitarListaActionPerformed(evt);
-            }
-        });
-
         btnVolver.setBackground(new java.awt.Color(171, 171, 171));
         btnVolver.setFont(new java.awt.Font("Segoe UI Emoji", 1, 14)); // NOI18N
         btnVolver.setForeground(new java.awt.Color(255, 255, 255));
@@ -408,34 +371,33 @@ public class VistaSuperMercado extends VistaBase {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(41, 41, 41)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btnMicrofono, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 309, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(30, 30, 30)
-                        .addComponent(btnSiguiente, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(12, 12, 12)
-                        .addComponent(btnAgregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnQuitarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnVolver, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGap(55, 55, 55)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(btnSiguiente, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGap(41, 41, 41)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addGap(244, 244, 244)
+                                .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 6, Short.MAX_VALUE)))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -458,14 +420,11 @@ public class VistaSuperMercado extends VistaBase {
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1))
                 .addGap(42, 42, 42)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnVolver, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnSiguiente, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnAgregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnQuitarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnSiguiente, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -517,13 +476,6 @@ public class VistaSuperMercado extends VistaBase {
         }
     }//GEN-LAST:event_btnVolverActionPerformed
 
-    private void btnAgregarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAgregarListaActionPerformed
-        // TODO add your handling code here:
-        if (listenerAgregarLista != null) {
-            listenerAgregarLista.actionPerformed(evt);
-        }
-    }//GEN-LAST:event_btnAgregarListaActionPerformed
-
     private void btnRepetirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRepetirActionPerformed
         // TODO add your handling code here:
         if (listenerRepetir != null) {
@@ -531,19 +483,10 @@ public class VistaSuperMercado extends VistaBase {
         }
     }//GEN-LAST:event_btnRepetirActionPerformed
 
-    private void btnQuitarListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuitarListaActionPerformed
-        // TODO add your handling code here:
-        if (listenerQuitarLista != null) {
-            listenerQuitarLista.actionPerformed(evt);
-        }
-    }//GEN-LAST:event_btnQuitarListaActionPerformed
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAgregarLista;
     private javax.swing.JButton btnBuscar;
     private javax.swing.JButton btnMicrofono;
-    private javax.swing.JButton btnQuitarLista;
     private javax.swing.JButton btnRepetir;
     private javax.swing.JButton btnSiguiente;
     private javax.swing.JButton btnVolver;
