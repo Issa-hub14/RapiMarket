@@ -15,6 +15,8 @@ import util.ReceptorVoz;
 import util.ReceptorVoz.Comando;
 import java.util.List;
 import servicio.PuntosDBService;
+import servicio.VentaTXTService;
+
 
 public class ControladorPedido {
 
@@ -24,6 +26,7 @@ public class ControladorPedido {
     private final ReceptorVoz receptorVoz;
     private final PuntosDBService puntosDBService;
     private final ClienteRegistrado clienteActual;
+    private final VentaTXTService ventaTXTService;
 
     public ControladorPedido(VistaPedidoOnline vista, IModelo modelo, ClienteRegistrado clienteActual) {
         this.vista = vista;
@@ -32,6 +35,7 @@ public class ControladorPedido {
         this.receptorVoz = new ReceptorVoz();
         this.puntosDBService = new PuntosDBService();
         this.clienteActual = clienteActual;
+        this.ventaTXTService = new VentaTXTService();
 
         conectarBotones();
         configurarVoz();
@@ -141,29 +145,23 @@ public class ControladorPedido {
         }
 
         String resumen = carrito.obtenerResumenParaVoz();
-        lectorVoz.hablar(resumen + ". ¿Confirmas el pedido?");
         vista.actualizarEstado("Pedido confirmado — Total: $"
                 + String.format("%,.0f", carrito.obtenerTotal()));
-
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            int opcion = javax.swing.JOptionPane.showConfirmDialog(
-                    vista,
-                    "Tu pedido:\n" + resumen + "\n\n¿Confirmar?",
-                    "Confirmar Pedido",
-                    javax.swing.JOptionPane.YES_NO_OPTION
-            );
-            if (opcion == javax.swing.JOptionPane.YES_OPTION) {
-                double totalCompra= carrito.obtenerTotal();
-
-                int puntosGanados= (int) totalCompra / 1000;
-                int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra );
-                
-                carrito.vaciar();
-                actualizarCarritoEnVista();
-                lectorVoz.hablar("Pedido confirmado. Gracias por tu compra. Ahora tienes" + puntosTotales + " puntos acumulados. "
+        
+        double totalCompra= carrito.obtenerTotal();
+        int puntosGanados= (int) totalCompra / 1000;
+        if(clienteActual != null){
+            int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra );
+            lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra. Ahora tienes" + puntosTotales + " puntos acumulados. "
                         + "Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
-            }
-        });
+        } else{
+            lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra.");
+                }
+        ventaTXTService.guardarVenta(carrito);
+        carrito.vaciar();
+        actualizarCarritoEnVista();
+        
+
     }
 
     private void leerCarrito() {
