@@ -38,13 +38,13 @@ public class ModeloTienda implements IModelo {
     private void cargarProductos() {
 
         agregarProductoCatalogo("Leche Entera 1L", 3500, "Lácteos", "Pasillo 1, derecha");
-        agregarProductoCatalogo("Leche Deslactosada 1L", 4200, "Lácteos", "Pasillo 1, derecha");
+        agregarProductoCatalogo("Aceite de oliva 500ML", 8000, "Aderezos", "Pasillo 2, izquierda");
         agregarProductoCatalogo("Yogurt Fresa 200g", 2800, "Lácteos", "Pasillo 1, izquierda");
         agregarProductoCatalogo("Queso Campesino 500g", 8500, "Lácteos", "Pasillo 1, izquierda");
 
-        agregarProductoCatalogo("Arroz 2kg", 6500, "Granos", "Pasillo 2, derecha");
+        agregarProductoCatalogo("Arroz 2kg", 6500, "Granos", "Pasillo 2, izquierda");
         agregarProductoCatalogo("Frijol Bolo 500g", 4800, "Granos", "Pasillo 2, derecha");
-        agregarProductoCatalogo("Lenteja 500g", 3900, "Granos", "Pasillo 2, izquierda");
+        agregarProductoCatalogo("Lenteja 500g", 3900, "Granos", "Pasillo 2, derecha");
 
         agregarProductoCatalogo("Pan Tajado", 5200, "Panadería", "Pasillo 3, derecha");
         agregarProductoCatalogo("Arepa x6", 4500, "Panadería", "Pasillo 3, derecha");

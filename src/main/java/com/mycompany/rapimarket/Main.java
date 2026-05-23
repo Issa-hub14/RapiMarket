@@ -8,7 +8,6 @@ package com.mycompany.rapimarket;
  *
  * @author isabe
  */
-import modelo.ModeloMicrofono;
 import modelo.ModeloTienda;
 import vista.VistaPrincipal;
 import controlador.ControladorPrincipal;
@@ -17,9 +16,7 @@ import javax.swing.SwingUtilities;
 public class Main {
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ModeloMicrofono modeloMic = new ModeloMicrofono();
-
+        SwingUtilities.invokeLater(() -> {        
             ModeloTienda modelo = new ModeloTienda();
             VistaPrincipal vista = new VistaPrincipal();
             new ControladorPrincipal(vista, modelo).iniciar();

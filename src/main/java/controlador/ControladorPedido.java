@@ -123,15 +123,14 @@ public class ControladorPedido {
                 + String.format("%,.0f", carrito.obtenerTotal()));
 
         double totalCompra = carrito.obtenerTotal();
-        int puntosGanados = (int) totalCompra / 1000;
         if (clienteActual != null) {
             int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra);
-            lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra. Ahora tienes" + puntosTotales + " puntos acumulados. "
-                    + "Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+            lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra. Ahora tienes " + puntosTotales + " puntos acumulados.");
+            ventaTXTService.guardarVenta(carrito, true);  // true = registrado
         } else {
             lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra.");
+            ventaTXTService.guardarVenta(carrito, false); // false = invitado
         }
-        ventaTXTService.guardarVenta(carrito);
         carrito.vaciar();
         actualizarCarritoEnVista();
 
@@ -172,9 +171,9 @@ public class ControladorPedido {
                 receptorVoz.setManejadorComando(cmd -> {
                     ultimoComando = cmd;
                     switch (cmd) {
-                        case AGREGAR ->{
-                            }
-                        case ELIMINAR ->{
+                        case AGREGAR -> {
+                        }
+                        case ELIMINAR -> {
                         }
                         case CONFIRMAR ->
                             confirmarPedido();
@@ -202,28 +201,28 @@ public class ControladorPedido {
                         vista.setTextoBusqueda(producto);
                         buscar();
                     }
-                    }
-                    );
+                }
+                );
 
                 receptorVoz.iniciarGrabacion();
-                    lectorVoz.hablar("Microfono activado.");
-                    vista.actualizarEstado("Escuchando...");
-                } catch (Exception ex) {
+                lectorVoz.hablar("Microfono activado.");
+                vista.actualizarEstado("Escuchando...");
+            } catch (Exception ex) {
                 vista.mostrarError("Error: " + ex.getMessage());
             }
-            }
         }
+    }
 
     private void actualizarCarritoEnVista() {
         Carrito c = modelo.obtenerCarrito();
-        StringBuilder sb = new StringBuilder();
+        String texto = "";
         for (Producto p : c.getProductos()) {
-            sb.append(p.getCantidad()).append("×  ")
-                    .append(p.getNombre())
-                    .append("  —  $").append(String.format("%,.0f", p.PrecioTotal()))
-                    .append("\n");
+            texto = texto + p.getCantidad() + "×  "
+                    + p.getNombre()
+                    + "  —  $" + String.format("%,.0f", p.PrecioTotal())
+                    + "\n";
         }
-        vista.actualizarCarrito(sb.toString(), c.obtenerTotal());
+        vista.actualizarCarrito(texto, c.obtenerTotal());
     }
 
     private void agregarProductoDirecto(String producto) {

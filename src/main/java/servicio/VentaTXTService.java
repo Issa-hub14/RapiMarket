@@ -16,14 +16,19 @@ public class VentaTXTService {
 
     private static final String ARCHIVO = "ventas.txt";
 
-    public void guardarVenta(Carrito carrito) {
+    public void guardarVenta(Carrito carrito, boolean esRegistrado) {
 
         try (
-            FileWriter fw = new FileWriter( ARCHIVO, true); 
-                PrintWriter pw = new PrintWriter(fw)) {
+                FileWriter fw = new FileWriter(ARCHIVO, true); PrintWriter pw = new PrintWriter(fw)) {
 
             pw.println("===== REGISTRO DE VENTA =====");
             pw.println();
+            if (esRegistrado) {
+                pw.println("Tipo: Cliente Registrado");
+            } else {
+                pw.println("Tipo: Cliente Invitado");
+            }
+            pw.println("PRODUCTOS:");
             for (Producto p : carrito.getProductos()) {
                 pw.println(
                         p.getNombre()
@@ -34,13 +39,13 @@ public class VentaTXTService {
                 );
             }
             pw.println();
-            pw.println("TOTAL: $"+ carrito.obtenerTotal());
+            pw.println("TOTAL: $" + carrito.obtenerTotal());
 
-            pw.println( "============================");
+            pw.println("============================");
             pw.println();
 
         } catch (Exception e) {
-            System.out.println( "Error guardando venta TXT: " + e.getMessage()
+            System.out.println("Error guardando venta TXT: " + e.getMessage()
             );
         }
     }

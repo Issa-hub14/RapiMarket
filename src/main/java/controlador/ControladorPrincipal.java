@@ -14,7 +14,6 @@ import vista.VistaListaCompras;
 import vista.VistaUsuario;
 import vista.VistaSuperMercado;
 import util.LectorVoz;
-import util.ReceptorVoz;
 import servicio.ClienteAPIService;
 
 public class ControladorPrincipal {
@@ -22,7 +21,6 @@ public class ControladorPrincipal {
     private final VistaPrincipal vista;
     private final IModelo modelo;
     private final LectorVoz lectorVoz;
-    private final ReceptorVoz receptorVoz;
     private ControladorSuperMercado controladorSuper;
 
     private VistaUsuario vistaUsuario;
@@ -34,7 +32,6 @@ public class ControladorPrincipal {
         this.vista = vista;
         this.modelo = modelo;
         this.lectorVoz = LectorVoz.getInstance();
-        this.receptorVoz = new ReceptorVoz();
         this.apiService = new ClienteAPIService();
 
         conectarBotones();
