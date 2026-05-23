@@ -13,7 +13,6 @@ import modelo.ModeloTienda;
 import vista.VistaPrincipal;
 import controlador.ControladorPrincipal;
 import javax.swing.SwingUtilities;
-import servicio.ClienteAPIService;
 
 public class Main {
 

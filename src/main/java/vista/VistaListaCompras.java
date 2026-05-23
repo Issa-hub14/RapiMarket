@@ -58,7 +58,7 @@ public class VistaListaCompras extends VistaBase {
                     lectorVoz.hablar(
                             nombre
                             + " Cuesta " + precio + " pesos "
-                            + "Pulsa nuevamente para agregar a la lista"
+                            + "Pulsa boton para agregar a la lista"
                     );
 
                     actualizarEstado("Seleccionado: " + nombre);

@@ -11,12 +11,12 @@ package util;
 import org.vosk.Model;
 import org.vosk.Recognizer;
 import javax.sound.sampled.*;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import util.LectorVoz;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ReceptorVozVosk {
 
@@ -26,23 +26,18 @@ public class ReceptorVozVosk {
     private Model model;
     private Recognizer recognizer;
     private Thread grabacionThread;
-    private LectorVoz lectorVoz;
-
+    
+    private StringBuilder textoAcumulado = new StringBuilder();
     private Consumer<String> manejadorTexto;
     private Consumer<Comando> manejadorComando;
-
-    private String ultimoTextoReconocido = "";
-
-    private boolean activo = true;
 
     private Map<String, Comando> mapaComandos = new HashMap<>();
 
     public enum Comando {
-        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER
+        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR
     }
 
     private ReceptorVozVosk() {
-        lectorVoz = LectorVoz.getInstance();
         cargarModelo();
         inicializarComandos();
     }
@@ -55,49 +50,29 @@ public class ReceptorVozVosk {
     }
 
     private void inicializarComandos() {
+        mapaComandos.put("agregar", Comando.AGREGAR);
+        mapaComandos.put("agrega", Comando.AGREGAR);
         mapaComandos.put("buscar", Comando.BUSCAR);
         mapaComandos.put("busca", Comando.BUSCAR);
         mapaComandos.put("siguiente", Comando.SIGUIENTE);
-        mapaComandos.put("siguiente producto", Comando.SIGUIENTE);
         mapaComandos.put("anterior", Comando.ANTERIOR);
-        mapaComandos.put("anterior producto", Comando.ANTERIOR);
         mapaComandos.put("repetir", Comando.REPETIR);
         mapaComandos.put("repite", Comando.REPETIR);
-        mapaComandos.put("agregar", Comando.AGREGAR);
-        mapaComandos.put("añadir", Comando.AGREGAR);
         mapaComandos.put("quitar", Comando.ELIMINAR);
         mapaComandos.put("eliminar", Comando.ELIMINAR);
         mapaComandos.put("volver", Comando.VOLVER);
         mapaComandos.put("regresar", Comando.VOLVER);
-        mapaComandos.put("atrás", Comando.VOLVER);
+        mapaComandos.put("carrito", Comando.LEER_CARRITO);
+        mapaComandos.put("confirmar", Comando.CONFIRMAR);
     }
 
     private void cargarModelo() {
         try {
-            // Cargar el modelo (¡Cambia esta ruta por la ruta donde descomprimiste tu modelo!)
             String rutaModelo = "C:/Users/isabe/Downloads/VozATextoApp/src/modelos/vosk-model-small-es-0.42/vosk-model-small-es-0.42";
-
-            if (!new File(rutaModelo).exists()) {
-                System.err.println("[Vosk] Modelo no encontrado en: " + rutaModelo);
-                return;
-            }
-            //editado
-            File modeloDir = new File(rutaModelo);
-            if (!modeloDir.exists() || !modeloDir.isDirectory()) {
-                System.err.println("[Vosk] Modelo NO encontrado en: " + rutaModelo);
-                return;
-            }
-
-            // Verificar que tenga archivos
-            if (modeloDir.listFiles().length == 0) {
-                System.err.println("[Vosk] El directorio del modelo está vacío");
-                return;
-            }
-            //editado
             model = new Model(rutaModelo);
-            System.out.println("[Vosk] Modelo cargado correctamente");
+            System.out.println("[Vosk] Modelo cargado");
         } catch (Exception e) {
-            System.err.println("[Vosk] Error al cargar modelo: " + e.getMessage());
+            System.err.println("[Vosk] Error: " + e.getMessage());
         }
     }
 
@@ -109,10 +84,18 @@ public class ReceptorVozVosk {
         this.manejadorComando = manejador;
     }
 
-    private Comando textoAComando(String texto) {
-        String textoLower = texto.toLowerCase().trim();
-        textoLower = textoLower.replace("por favor", "").replace("quiero", "").trim();
+    private String extraerTextoDelJson(String json) {
+        Pattern pattern = Pattern.compile("\"text\"\\s*:\\s*\"([^\"]*)\"");
+        Matcher matcher = pattern.matcher(json);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return "";
+    }
 
+    private Comando textoAComando(String texto) {
+        if (texto == null || texto.isBlank()) return null;
+        String textoLower = texto.toLowerCase().trim();
         for (Map.Entry<String, Comando> entry : mapaComandos.entrySet()) {
             if (textoLower.contains(entry.getKey())) {
                 return entry.getValue();
@@ -121,160 +104,95 @@ public class ReceptorVozVosk {
         return null;
     }
 
-    public void iniciarGrabacion() {
-        if (grabando || model == null) {
-            System.err.println("[Vosk] No inicia: grabando=" + grabando + " model=" + model);
-            return;
+    private String extraerProducto(String texto, Comando cmd) {
+        if (cmd == Comando.AGREGAR) {
+            return texto.replaceFirst("(?i)agregar|agrega", "").trim();
+        } else if (cmd == Comando.BUSCAR) {
+            return texto.replaceFirst("(?i)buscar|busca", "").trim();
+        } else if (cmd == Comando.ELIMINAR) {
+            return texto.replaceFirst("(?i)quitar|eliminar", "").trim();
         }
+        return "";
+    }
+
+    public void iniciarGrabacion() {
+        if (grabando || model == null) return;
 
         try {
             AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
             DataLine.Info info = new DataLine.Info(TargetDataLine.class, format);
-
-            if (!AudioSystem.isLineSupported(info)) {
-                System.err.println("[Vosk] Micrófono no soportado o no se encuentra.");
-                return;
-            }
-
             microphone = (TargetDataLine) AudioSystem.getLine(info);
             microphone.open(format);
             microphone.start();
 
             recognizer = new Recognizer(model, 16000);
             grabando = true;
+            textoAcumulado = new StringBuilder();
 
             grabacionThread = new Thread(() -> {
                 byte[] data = new byte[4096];
+                long inicioGrabacion = System.currentTimeMillis();
+                int duracion = 5000; // 5 segundos
 
-                while (grabando) {
+                while (grabando && System.currentTimeMillis() - inicioGrabacion < duracion) {
                     try {
-                        if (lectorVoz.isHablando()) {
-                            recognizer.reset();
-                            Thread.sleep(100);
-                            continue;
-                        }
-
-                        int bytesLeidos = microphone.read(data, 0, data.length);
-
-                        if (bytesLeidos <= 0) {
-                            continue;
-                        }
-
-                        if (bytesLeidos > 0) {
-                            if (recognizer.acceptWaveForm(data, bytesLeidos)) {
-                                String resultado = recognizer.getResult();
-                                System.out.println(
-                                        "[Vosk] JSON FINAL: "
-                                        + resultado
-                                );
-                                String texto = extraerTexto(resultado);
-                                procesarTexto(texto);
-                            } else {
-                                // RESULTADO PARCIAL
-                                String parcial = recognizer.getPartialResult();
-                                String textoParcial = extraerParcial(parcial);
-
-                                if (textoParcial != null && !textoParcial.isBlank()) {
-                                    System.out.println("[Vosk] Parcial: " + textoParcial);
-                                }
+                        if (microphone.available() > 0) {
+                            int bytesLeidos = microphone.read(data, 0, data.length);
+                            if (bytesLeidos > 0 && recognizer != null) {
+                                recognizer.acceptWaveForm(data, bytesLeidos);
                             }
                         }
-                    } catch (Exception e) {
-                        System.err.println("[Vosk] Error en reconocimiento: " + e.getMessage());
-                        e.printStackTrace();
+                        Thread.sleep(10);
+                    } catch (Exception e) {}
+                }
+                
+                
+                String json = recognizer.getResult();
+                String texto = extraerTextoDelJson(json);
+                
+                if (!texto.isEmpty()) {
+                    System.out.println("[Vosk] Texto: " + texto);
+                    Comando cmd = textoAComando(texto);
+                    
+                    if (cmd != null && manejadorComando != null) {
+                        System.out.println("[Vosk] Comando: " + cmd);
+                        manejadorComando.accept(cmd);
+                        
+                        String producto = extraerProducto(texto, cmd);
+                        if (!producto.isEmpty() && manejadorTexto != null) {
+                            manejadorTexto.accept(producto);
+                        }
+                    } else if (manejadorTexto != null) {
+                        manejadorTexto.accept(texto);
                     }
                 }
+                
+                grabando = false;
+                detenerGrabacion();
             });
-
+            
             grabacionThread.start();
-            System.out.println("[Vosk] Grabación iniciada");
-
         } catch (Exception e) {
-            System.err.println("[Vosk] Error al iniciar: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("[Vosk] Error: " + e.getMessage());
         }
-    }
-
-    private void procesarTexto(String texto) {
-
-        if (texto == null || texto.isBlank()) {
-            return;
-        }
-        ultimoTextoReconocido = texto;
-        System.out.println("[Vosk] Texto reconocido: " + texto);
-        Comando cmd = textoAComando(texto);
-
-        if (cmd != null && manejadorComando != null) {
-            System.out.println("[Vosk] Comando detectado: " + cmd);
-            manejadorComando.accept(cmd);
-
-        } else if (manejadorTexto != null) {
-            manejadorTexto.accept(texto);
-        }
-    }
-
-    private String extraerTexto(String json) {
-
-        try {
-            int inicio = json.indexOf("\"text\":\"") + 8;
-            int fin = json.indexOf("\"", inicio);
-            if (inicio > 8 && fin > inicio) {
-                return json.substring(inicio, fin);
-            }
-        } catch (Exception e) {
-            return null;
-        }
-        return null;
-    }
-
-    private String extraerParcial(String json) {
-
-        try {
-            int inicio = json.indexOf("\"partial\":\"") + 11;
-            int fin = json.indexOf("\"", inicio);
-            if (inicio > 11 && fin > inicio) {
-                return json.substring(inicio, fin);
-            }
-
-        } catch (Exception e) {
-            return null;
-        }
-        return null;
     }
 
     public void detenerGrabacion() {
         grabando = false;
         try {
-            if (microphone != null) {
-                microphone.stop();
-            }
-
-            if (grabacionThread != null && grabacionThread.isAlive()) {
-                grabacionThread.join();
-            }
-
-            if (microphone != null) {
-                microphone.close();
-                microphone = null;
-            }
-
             if (recognizer != null) {
                 recognizer.close();
                 recognizer = null;
             }
-            System.out.println("[Vosk] Grabación detenida");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            if (microphone != null) {
+                microphone.close();
+                microphone = null;
+            }
+        } catch (Exception e) {}
     }
 
     public boolean isGrabando() {
         return grabando;
-    }
-
-    public String getUltimoTextoReconocido() {
-        return ultimoTextoReconocido;
     }
 
     public void cerrar() {
@@ -282,5 +200,5 @@ public class ReceptorVozVosk {
         if (model != null) {
             model.close();
         }
-    }
+    }  
 }

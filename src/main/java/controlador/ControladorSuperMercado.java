@@ -12,6 +12,7 @@ import modelo.*;
 import vista.VistaSuperMercado;
 import util.LectorVoz;
 import util.ReceptorVozVosk;
+import util.ReceptorVozVosk.Comando;
 import java.util.List;
 
 public class ControladorSuperMercado {
@@ -30,7 +31,7 @@ public class ControladorSuperMercado {
         this.receptorVoz = ReceptorVozVosk.getInstance();
 
         conectarBotones();
-        configurarVoz();
+        
         refrescarLista();
     }
 
@@ -41,52 +42,6 @@ public class ControladorSuperMercado {
         vista.addBtnVolverListener(e -> volver());
         vista.addBtnMicrofonoListener(e -> manejarMicrofono());
         vista.addSeleccionListaListener(e -> mostrarProductoDesdeLista(e.getActionCommand()));
-    }
-
-    private void configurarVoz() {
-        receptorVoz.setManejadorComando(cmd -> {
-            String texto = limpiarComando(receptorVoz.getUltimoTextoReconocido());
-            switch (cmd) {
-                case BUSCAR ->
-                    buscarProducto(texto);
-                case SIGUIENTE ->
-                    siguienteProducto();
-                case ANTERIOR ->
-                    anteriorProducto();
-                case REPETIR ->
-                    vista.repetirIndicacion();
-                case VOLVER ->
-                    volver();
-                default ->
-                    lectorVoz.hablar(
-                            "Di: buscar, siguiente, anterior, repetir, o volver.");
-            }
-        });
-
-        receptorVoz.setManejadorTexto(texto -> {
-            if (texto == null || texto.isBlank()) {
-                return;
-            }
-            buscarProducto(texto);
-        });
-
-    }
-
-    private String limpiarComando(String texto) {
-        if (texto == null) {
-            return "";
-        }
-        texto = texto.toLowerCase();
-
-        texto = texto.replace("quiero", "");
-        texto = texto.replace("buscar", "");
-        texto = texto.replace("busca", "");
-        texto = texto.replace("agregar", "");
-        texto = texto.replace("añadir", "");
-        texto = texto.replace("el producto", "");
-        texto = texto.replace("producto", "");
-
-        return texto.trim();
     }
 
     private void buscarProducto(String texto) {
@@ -101,18 +56,14 @@ public class ControladorSuperMercado {
 
             if (resultados.isEmpty()) {
                 vista.mostrarInfoProducto(null);
-                lectorVoz.hablar("No encontré " + texto);
-
+                
             } else {
                 Producto producto = resultados.get(0);
                 vista.mostrarInfoProducto(producto);
             }
             refrescarLista();
         } catch (Exception e) {
-            vista.mostrarError(
-                    "Error al buscar: "
-                    + e.getMessage()
-            );
+            vista.mostrarError("Error al buscar: " + e.getMessage());
         }
     }
 
@@ -166,20 +117,36 @@ public class ControladorSuperMercado {
     }
 
     private void manejarMicrofono() {
-        if (receptorVoz.isGrabando()) {
-            receptorVoz.detenerGrabacion();
-            lectorVoz.hablar("Micrófono desactivado");
-            vista.actualizarEstado("Micrófono desactivado");
-        } else {
-            try {
-                receptorVoz.iniciarGrabacion();
-                lectorVoz.hablar("Micrófono activado. Di un comando o producto");
-                vista.actualizarEstado("Grabando... clic de nuevo para detener.");
-            } catch (Exception ex) {
-                vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
-            }
+    if (receptorVoz.isGrabando()) {
+        receptorVoz.detenerGrabacion();
+        lectorVoz.hablar("Microfono desactivado");
+        vista.actualizarEstado("Microfono desactivado");
+    } else {
+        try {
+            receptorVoz.setManejadorComando(cmd -> {
+                switch (cmd) {
+                    case SIGUIENTE -> siguienteProducto();
+                    case REPETIR -> vista.repetirIndicacion();
+                    case ANTERIOR -> anteriorProducto();
+                    case VOLVER -> volver();
+                    default -> lectorVoz.hablar("Comando no reconocido");
+                }
+            });
+            
+            receptorVoz.setManejadorTexto(producto -> {
+                if (producto != null && !producto.isEmpty()) {
+                        buscarProducto(producto); 
+                    }
+            });
+            
+            receptorVoz.iniciarGrabacion();
+            lectorVoz.hablar("Microfono activado.");
+            vista.actualizarEstado("Escuchando...");
+        } catch (Exception ex) {
+            vista.mostrarError("Error: " + ex.getMessage());
         }
     }
+}
 
     private void mostrarProductoDesdeLista(String nombreProducto) {
         List<String>lista = modelo.obtenerListaDeMercado();
