@@ -20,7 +20,7 @@ public class VistaListaCompras extends VistaBase {
      * Creates new form VistaListaCompras
      */
     private ActionListener listenerBuscar;
-    private ActionListener listenerRepetir;
+    private ActionListener listenerLeerLista;
     private ActionListener listenerAgregarLista;
     private ActionListener listenerQuitarLista;
     private ActionListener listenerMicrofono;
@@ -93,7 +93,7 @@ public class VistaListaCompras extends VistaBase {
         txtBuscar.addActionListener(e -> btnBuscar.doClick());
 
         aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
-        aplicarEstiloBoton(btnRepetir, new Color(235, 93, 93), "Repetir indicacion");
+        aplicarEstiloBoton(btnLeerLista, new Color(235, 93, 93), "Leer lista");
         aplicarEstiloBoton(btnAgregarLista, new Color(72, 112, 32), "Agregar a mi lista");
         aplicarEstiloBoton(btnQuitarLista, new Color(186, 135, 75), "Quitar de mi lista");
         aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menú");
@@ -134,8 +134,8 @@ public class VistaListaCompras extends VistaBase {
                 if (btn == btnBuscar && listenerBuscar != null) {
                     listenerBuscar.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
                 }
-                if (btn == btnRepetir && listenerRepetir != null) {
-                    listenerRepetir.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
+                if (btn == btnLeerLista && listenerLeerLista != null) {
+                    listenerLeerLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
                 }
                 if (btn == btnAgregarLista && listenerAgregarLista != null) {
                     listenerAgregarLista.actionPerformed(new ActionEvent(btn, ActionEvent.ACTION_PERFORMED, ""));
@@ -151,6 +151,13 @@ public class VistaListaCompras extends VistaBase {
                 }
             }
         });
+    }
+
+    public void seleccionarProducto(int indice) {
+        if (lstResultados != null && indice >= 0 && indice < lstResultados.getModel().getSize()) {
+            lstResultados.setSelectedIndex(indice);
+            System.out.println("[Vista] Producto seleccionado índice: " + indice);
+        }
     }
 
     public void mostrarResultados(List<Producto> productos) {
@@ -175,6 +182,10 @@ public class VistaListaCompras extends VistaBase {
         return txtBuscar.getText().trim();
     }
 
+    public void setTextoBusqueda(String texto) {
+        txtBuscar.setText(texto);
+    }
+
     public String getItemListaSeleccionado() {
         return lstMiLista.getSelectedValue();
     }
@@ -187,8 +198,8 @@ public class VistaListaCompras extends VistaBase {
         this.listenerBuscar = l;
     }
 
-    public void addBtnRepetirListener(ActionListener l) {
-        this.listenerRepetir = l;
+    public void addBtnLeerListaListener(ActionListener l) {
+        this.listenerLeerLista = l;
     }
 
     public void addBtnAgregarListaListener(ActionListener l) {
@@ -215,19 +226,23 @@ public class VistaListaCompras extends VistaBase {
         );
     }
 
-    public void repetirIndicacion() {
+    public void leerLista() {
         DefaultListModel<String> model = (DefaultListModel<String>) lstMiLista.getModel();
 
         if (model == null || model.isEmpty()) {
             lectorVoz.hablar("Tu lista de compras está vacía.");
             return;
         }
+
+        String mensaje = "Tu lista tiene" + model.size() + "Productos";
         
-        lectorVoz.hablar("Tu lista tiene " + model.size() + " productos.");
         for (int i = 0; i < model.size(); i++) {
-            String item = model.get(i);
-            lectorVoz.hablar(item);
+            if(i>0){
+                mensaje = mensaje + ",";
+            }
+            mensaje = mensaje + model.get(i);
         }
+            lectorVoz.hablar(mensaje);
     }
 
     /**
@@ -246,7 +261,7 @@ public class VistaListaCompras extends VistaBase {
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         btnBuscar = new javax.swing.JButton();
-        btnRepetir = new javax.swing.JButton();
+        btnLeerLista = new javax.swing.JButton();
         btnAgregarLista = new javax.swing.JButton();
         btnQuitarLista = new javax.swing.JButton();
         btnVolver = new javax.swing.JButton();
@@ -302,14 +317,14 @@ public class VistaListaCompras extends VistaBase {
             }
         });
 
-        btnRepetir.setBackground(new java.awt.Color(235, 93, 93));
-        btnRepetir.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        btnRepetir.setForeground(new java.awt.Color(255, 255, 255));
-        btnRepetir.setText("REPETIR");
-        btnRepetir.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnRepetir.addActionListener(new java.awt.event.ActionListener() {
+        btnLeerLista.setBackground(new java.awt.Color(235, 93, 93));
+        btnLeerLista.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnLeerLista.setForeground(new java.awt.Color(255, 255, 255));
+        btnLeerLista.setText("LEER LISTA");
+        btnLeerLista.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnLeerLista.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnRepetirActionPerformed(evt);
+                btnLeerListaActionPerformed(evt);
             }
         });
 
@@ -376,7 +391,7 @@ public class VistaListaCompras extends VistaBase {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(btnLeerLista, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(btnAgregarLista, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addComponent(jScrollPane2))
@@ -422,7 +437,7 @@ public class VistaListaCompras extends VistaBase {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnRepetir, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnLeerLista, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnAgregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(btnVolver, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(52, 52, 52))
@@ -484,20 +499,20 @@ public class VistaListaCompras extends VistaBase {
         }
     }//GEN-LAST:event_btnBuscarActionPerformed
 
-    private void btnRepetirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRepetirActionPerformed
+    private void btnLeerListaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLeerListaActionPerformed
         // TODO add your handling code here:
-        if (listenerRepetir != null) {
-            listenerRepetir.actionPerformed(evt);
+        if (listenerLeerLista != null) {
+            listenerLeerLista.actionPerformed(evt);
         }
-    }//GEN-LAST:event_btnRepetirActionPerformed
+    }//GEN-LAST:event_btnLeerListaActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAgregarLista;
     private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnLeerLista;
     private javax.swing.JButton btnMicrofono;
     private javax.swing.JButton btnQuitarLista;
-    private javax.swing.JButton btnRepetir;
     private javax.swing.JButton btnVolver;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

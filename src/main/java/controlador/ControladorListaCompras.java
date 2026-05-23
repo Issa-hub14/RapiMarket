@@ -22,6 +22,8 @@ public class ControladorListaCompras {
     private final LectorVoz lectorVoz;
     private final ReceptorVozVosk receptorVoz;
 
+    private Comando ultimoComando = null;
+
     public ControladorListaCompras(VistaListaCompras vista, IModelo modelo) {
         this.vista = vista;
         this.modelo = modelo;
@@ -29,7 +31,6 @@ public class ControladorListaCompras {
         this.receptorVoz = ReceptorVozVosk.getInstance();
 
         conectarBotones();
-        //configurarVoz();
         cargarCatalogoInicial();
         actualizarLista();
     }
@@ -39,84 +40,64 @@ public class ControladorListaCompras {
     }
 
     private void conectarBotones() {
-        vista.addBtnBuscarListener(e -> buscar());
+        vista.addBtnBuscarListener(e -> buscarProducto(vista.getTextoBusqueda()));
         vista.addBtnAgregarListaListener(e -> agregarALista());
         vista.addBtnQuitarListaListener(e -> quitarDeLista());
-        vista.addBtnRepetirListener(e -> repetirProducto());
+        vista.addBtnLeerListaListener(e -> vista.leerLista());
         vista.addBtnMicrofonoListener(e -> manejarMicrofono());
         vista.addBtnVolverListener(e -> volver());
     }
 
-    private void configurarVoz() {
-        receptorVoz.setManejadorComando(cmd -> {
-            switch (cmd) {
-                case BUSCAR ->
-                    buscar();
-                case REPETIR ->
-                    repetirProducto();
-                case AGREGAR ->
-                    agregarALista();
-                case ELIMINAR ->
-                    quitarDeLista();
-                case VOLVER ->
-                    volver();
-                default ->
-                    lectorVoz.hablar("Comando no reconocido. Di: buscar, agregar, quitar, repetir, o volver");
-            }
-        });
+    private void leerLista() {
+        List<String> lista = modelo.obtenerListaDeMercado();
 
-        receptorVoz.setManejadorTexto(texto -> {
-            //lectorVoz.hablar("Buscando: " + texto);
-            List<Producto> resultados = modelo.buscarProductos(texto);
-            vista.mostrarResultados(resultados);
-            if (resultados.isEmpty()) {
-                lectorVoz.hablar("No encontré productos para " + texto);
-            } else {
-                lectorVoz.hablar("Encontré " + resultados.size() + " productos");
-            }
-        });
-    }
-
-    private void repetirProducto() {
-        String seleccionado = vista.getItemListaSeleccionado();
-
-        if (seleccionado == null || seleccionado.isBlank()) {
-            lectorVoz.hablar("Selecciona un producto de tu lista primero");
+        if (lista == null || lista.isEmpty()) {
+            lectorVoz.hablar("Tu lista de compras está vacía.");
             return;
         }
-
-        lectorVoz.hablar("Producto seleccionado: " + seleccionado);
+         String mensaje = "Tu lista tiene" + lista.size() + "Productos";
+        
+        for (int i = 0; i < lista.size(); i++) {
+            if(i>0){
+                mensaje = mensaje + ",";
+            }
+            mensaje = mensaje + lista.get(i);
+        }
+        lectorVoz.hablar(mensaje);
     }
 
-    private void buscar() {
-
-        String texto = vista.getTextoBusqueda();
+    private void buscarProducto(String texto) {
         if (texto == null || texto.isBlank()) {
             lectorVoz.hablar("Di o escribe el producto que deseas buscar.");
             return;
         }
+        try {
+            vista.setTextoBusqueda(texto);
+            List<Producto> resultados = modelo.buscarProductos(texto);
+            vista.mostrarResultados(resultados);
 
-        List<Producto> resultados = modelo.buscarProductos(texto);
+            if (resultados.isEmpty()) {
+                lectorVoz.hablar("No encontré " + texto);
+            } else {
+                Producto producto = resultados.get(0);
 
-        vista.mostrarResultados(resultados);
-        lectorVoz.hablar("Resultados para " + texto);
-
-        if (!resultados.isEmpty()) {
-            lectorVoz.hablar("Primer resultado: " + resultados.get(0).getNombre());
+                lectorVoz.hablar("Encontré " + resultados.size() + " productos. "
+                        + "Primer resultado: " + producto.getNombre()
+                        + ". Precio " + (int) producto.getPrecio() + " pesos. ");
+            }
+        } catch (Exception e) {
+            vista.mostrarError("Error al buscar: " + e.getMessage());
         }
     }
 
     private void agregarALista() {
-
         String seleccionado = vista.getProductoSeleccionado();
 
-        if (seleccionado == null) {
+        if (seleccionado == null || seleccionado.isEmpty()) {
             lectorVoz.hablar("Selecciona un producto primero");
             return;
         }
-
         String nombre = seleccionado.split("—")[0].trim();
-
         modelo.agregarAListaMercado(nombre);
         actualizarLista();
 
@@ -164,20 +145,21 @@ public class ControladorListaCompras {
             vista.actualizarEstado("Microfono desactivado");
         } else {
             try {
-                receptorVoz.setEnviarProductoParaAgregar(false);
-                receptorVoz.setEnviarProductoParaEliminar(false);
+                receptorVoz.setEnviarProductoParaAgregar(true);
+                receptorVoz.setEnviarProductoParaEliminar(true);
 
                 receptorVoz.setManejadorComando(cmd -> {
+                    ultimoComando = cmd;
                     switch (cmd) {
-                        case AGREGAR ->
-                            agregarALista();
-                        case REPETIR ->
-                            vista.repetirIndicacion();
-                        case ELIMINAR ->
-                            quitarDeLista();
+                        case AGREGAR -> {
+                        }
+                        case LEER ->
+                            leerLista();
+                        case ELIMINAR -> {
+                        }
                         case VOLVER ->
                             volver();
-                        case LEER_CARRITO, CONFIRMAR -> {
+                        case LEER_CARRITO, CONFIRMAR, SIGUIENTE -> {
                             lectorVoz.hablar("Este comando no está disponible en el supermercado. Ve a tu lista de compras.");
                         }
 
@@ -185,8 +167,17 @@ public class ControladorListaCompras {
                 });
 
                 receptorVoz.setManejadorTexto(producto -> {
-                    if (producto != null && !producto.isEmpty()) {
-                        buscar();
+                    if (producto == null || producto.isEmpty()) {
+                        return;
+                    }
+                    if (ultimoComando == Comando.AGREGAR) {
+                        agregarProductoDirecto(producto);
+                        ultimoComando = null;
+                    } else if (ultimoComando == Comando.ELIMINAR) {
+                        eliminarProductoDirecto(producto);
+                        ultimoComando = null;
+                    } else {
+                        buscarProducto(producto);
                     }
                 });
 
@@ -198,4 +189,45 @@ public class ControladorListaCompras {
             }
         }
     }
+
+    private void agregarProductoDirecto(String producto) {
+        if (producto == null || producto.isEmpty()) {
+            lectorVoz.hablar("No entendí qué producto quieres agregar.");
+            return;
+        }
+        List<Producto> resultados = modelo.buscarProductos(producto);
+        if (resultados.isEmpty()) {
+            lectorVoz.hablar(producto + " no está disponible en el catálogo.");
+            return;
+        }
+        Producto encontrado = resultados.get(0);
+        String nombreEncontrado = encontrado.getNombre();
+        modelo.agregarAListaMercado(nombreEncontrado);
+        actualizarLista();
+        lectorVoz.hablar(producto + " agregado a tu lista");
+    }
+
+    private void eliminarProductoDirecto(String producto) {
+        if (producto == null || producto.isEmpty()) {
+            lectorVoz.hablar("No entendí qué producto quieres eliminar.");
+            return;
+        }
+        List<String> listaActual = modelo.obtenerListaDeMercado();
+        String productoEncontrado = null;
+        for (String item : listaActual) {
+            if (item.toLowerCase().contains(producto.toLowerCase())) {
+                productoEncontrado = item;
+                break;
+            }
+        }
+        if (productoEncontrado == null) {
+            lectorVoz.hablar(producto + " no está en tu lista de compras.");
+            return;
+        }
+
+        modelo.eliminarDeListaMercado(productoEncontrado);
+        actualizarLista();
+        lectorVoz.hablar(productoEncontrado + " eliminado de tu lista");
+    }
+
 }

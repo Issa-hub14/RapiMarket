@@ -37,7 +37,7 @@ public class ReceptorVozVosk {
     private boolean enviarProductoParaEliminar = false;
 
     public enum Comando {
-        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR
+        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR, LEER
     }
 
     private ReceptorVozVosk() {
@@ -66,7 +66,6 @@ public class ReceptorVozVosk {
         mapaComandos.put("buscar", Comando.BUSCAR);
         mapaComandos.put("busca", Comando.BUSCAR);
         mapaComandos.put("siguiente", Comando.SIGUIENTE);
-        mapaComandos.put("anterior", Comando.ANTERIOR);
         mapaComandos.put("repetir", Comando.REPETIR);
         mapaComandos.put("repite", Comando.REPETIR);
         mapaComandos.put("quitar", Comando.ELIMINAR);
@@ -75,6 +74,8 @@ public class ReceptorVozVosk {
         mapaComandos.put("regresar", Comando.VOLVER);
         mapaComandos.put("carrito", Comando.LEER_CARRITO);
         mapaComandos.put("confirmar", Comando.CONFIRMAR);
+        mapaComandos.put("leer", Comando.LEER);
+        mapaComandos.put("lee", Comando.LEER);
     }
 
     private void cargarModelo() {
@@ -176,11 +177,11 @@ public class ReceptorVozVosk {
                         boolean enviarProducto = false;
 
                         if (cmd == Comando.BUSCAR) {
-                            enviarProducto = true;  // Siempre enviar producto para BUSCAR
+                            enviarProducto = true;  
                         } else if (cmd == Comando.AGREGAR) {
-                            enviarProducto = enviarProductoParaAgregar;  // Configurable
+                            enviarProducto = enviarProductoParaAgregar; 
                         } else if (cmd == Comando.ELIMINAR) {
-                            enviarProducto = enviarProductoParaEliminar;  // Configurable
+                            enviarProducto = enviarProductoParaEliminar;  
                         }
 
                         if (enviarProducto) {

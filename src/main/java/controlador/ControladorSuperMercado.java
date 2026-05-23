@@ -22,7 +22,7 @@ public class ControladorSuperMercado {
     private final LectorVoz lectorVoz;
     private final ReceptorVozVosk receptorVoz;
 
-    private int indiceActual = 0;
+    private int indiceActual = -1;
 
     public ControladorSuperMercado(VistaSuperMercado vista, IModelo modelo) {
         this.vista = vista;
@@ -78,25 +78,14 @@ public class ControladorSuperMercado {
         }
         indiceActual ++;
         if (indiceActual >= lista.size()) {
-            indiceActual = 0;
-            lectorVoz.hablar("Fin de la lista. Volviendo al primer producto.");
+            lectorVoz.hablar("Fin de la lista.");
+            indiceActual = -1;
             return; 
         }
         String nombreProducto = lista.get(indiceActual);
         Producto p = modelo.buscarProductoPorNombre(nombreProducto);
         vista.mostrarInfoProducto(p);
         
-        refrescarLista();
-    }
-
-    private void anteriorProducto() {
-        List<String> lista = modelo.obtenerListaDeMercado();
-        if (lista.isEmpty()) {
-            lectorVoz.hablar("Tu lista de compras está vacía.");
-            return;
-        }
-        indiceActual = Math.max(0, indiceActual - 2);
-        siguienteProducto();
         refrescarLista();
     }
 
@@ -129,7 +118,6 @@ public class ControladorSuperMercado {
                 switch (cmd) {
                     case SIGUIENTE -> siguienteProducto();
                     case REPETIR -> vista.repetirIndicacion();
-                    case ANTERIOR -> anteriorProducto();
                     case VOLVER -> volver();
                     case AGREGAR, ELIMINAR, LEER_CARRITO, CONFIRMAR -> {
                         lectorVoz.hablar("Este comando no está disponible en el supermercado");}
