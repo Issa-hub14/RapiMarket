@@ -26,12 +26,15 @@ public class ReceptorVozVosk {
     private Model model;
     private Recognizer recognizer;
     private Thread grabacionThread;
-    
+
     private StringBuilder textoAcumulado = new StringBuilder();
     private Consumer<String> manejadorTexto;
     private Consumer<Comando> manejadorComando;
 
     private Map<String, Comando> mapaComandos = new HashMap<>();
+
+    private boolean enviarProductoParaAgregar = false;
+    private boolean enviarProductoParaEliminar = false;
 
     public enum Comando {
         BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR
@@ -40,6 +43,14 @@ public class ReceptorVozVosk {
     private ReceptorVozVosk() {
         cargarModelo();
         inicializarComandos();
+    }
+
+    public void setEnviarProductoParaAgregar(boolean enviar) {
+        this.enviarProductoParaAgregar = enviar;
+    }
+
+    public void setEnviarProductoParaEliminar(boolean enviar) {
+        this.enviarProductoParaEliminar = enviar;
     }
 
     public static synchronized ReceptorVozVosk getInstance() {
@@ -94,7 +105,9 @@ public class ReceptorVozVosk {
     }
 
     private Comando textoAComando(String texto) {
-        if (texto == null || texto.isBlank()) return null;
+        if (texto == null || texto.isBlank()) {
+            return null;
+        }
         String textoLower = texto.toLowerCase().trim();
         for (Map.Entry<String, Comando> entry : mapaComandos.entrySet()) {
             if (textoLower.contains(entry.getKey())) {
@@ -116,7 +129,9 @@ public class ReceptorVozVosk {
     }
 
     public void iniciarGrabacion() {
-        if (grabando || model == null) return;
+        if (grabando || model == null) {
+            return;
+        }
 
         try {
             AudioFormat format = new AudioFormat(16000, 16, 1, true, false);
@@ -143,34 +158,47 @@ public class ReceptorVozVosk {
                             }
                         }
                         Thread.sleep(10);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                    }
                 }
-                
-                
+
                 String json = recognizer.getResult();
                 String texto = extraerTextoDelJson(json);
-                
+
                 if (!texto.isEmpty()) {
                     System.out.println("[Vosk] Texto: " + texto);
                     Comando cmd = textoAComando(texto);
-                    
+
                     if (cmd != null && manejadorComando != null) {
                         System.out.println("[Vosk] Comando: " + cmd);
                         manejadorComando.accept(cmd);
-                        
-                        String producto = extraerProducto(texto, cmd);
-                        if (!producto.isEmpty() && manejadorTexto != null) {
-                            manejadorTexto.accept(producto);
+
+                        boolean enviarProducto = false;
+
+                        if (cmd == Comando.BUSCAR) {
+                            enviarProducto = true;  // Siempre enviar producto para BUSCAR
+                        } else if (cmd == Comando.AGREGAR) {
+                            enviarProducto = enviarProductoParaAgregar;  // Configurable
+                        } else if (cmd == Comando.ELIMINAR) {
+                            enviarProducto = enviarProductoParaEliminar;  // Configurable
                         }
+
+                        if (enviarProducto) {
+                            String producto = extraerProducto(texto, cmd);
+                            if (!producto.isEmpty() && manejadorTexto != null) {
+                                manejadorTexto.accept(producto);
+                            }
+                        }
+
                     } else if (manejadorTexto != null) {
                         manejadorTexto.accept(texto);
                     }
                 }
-                
+
                 grabando = false;
                 detenerGrabacion();
             });
-            
+
             grabacionThread.start();
         } catch (Exception e) {
             System.err.println("[Vosk] Error: " + e.getMessage());
@@ -188,17 +216,12 @@ public class ReceptorVozVosk {
                 microphone.close();
                 microphone = null;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public boolean isGrabando() {
         return grabando;
     }
 
-    public void cerrar() {
-        detenerGrabacion();
-        if (model != null) {
-            model.close();
-        }
-    }  
 }

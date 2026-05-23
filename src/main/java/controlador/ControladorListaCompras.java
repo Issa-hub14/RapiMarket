@@ -66,7 +66,7 @@ public class ControladorListaCompras {
         });
 
         receptorVoz.setManejadorTexto(texto -> {
-            lectorVoz.hablar("Buscando: " + texto);
+            //lectorVoz.hablar("Buscando: " + texto);
             List<Producto> resultados = modelo.buscarProductos(texto);
             vista.mostrarResultados(resultados);
             if (resultados.isEmpty()) {
