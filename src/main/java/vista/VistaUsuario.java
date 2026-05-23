@@ -51,7 +51,7 @@ public class VistaUsuario extends VistaBase {
         aplicarEstiloBoton(btnInvitado, new Color(224, 173, 123), "Continuar sin registrarse");
         aplicarEstiloBoton(btnContinuar, new Color(146, 195, 98), "Continuar");
         aplicarEstiloBoton(btnVolver, new Color(171, 171, 171), "Volver al menu");
-        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Micrófono");
+        aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
@@ -113,6 +113,10 @@ public class VistaUsuario extends VistaBase {
 
     public String getIdCliente() {
         return txtBuscar.getText().trim();
+    }
+
+    public void setTextoBusqueda(String texto) {
+        txtBuscar.setText(texto);
     }
 
     public void addBuscarListener(ActionListener l) {

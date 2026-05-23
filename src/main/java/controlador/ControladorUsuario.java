@@ -14,7 +14,12 @@ import servicio.ClienteAPIService;
 import vista.VistaPedidoOnline;
 import vista.VistaUsuario;
 import util.LectorVoz;
+import util.ReceptorVozVosk;
+import util.ReceptorVozVosk.Comando;
 import modelo.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ControladorUsuario {
 
@@ -23,12 +28,14 @@ public class ControladorUsuario {
     private final IModelo modelo;
     private ClienteRegistrado clienteActual;
     private final LectorVoz lectorVoz;
+    private final ReceptorVozVosk receptorVoz;
 
     public ControladorUsuario(VistaUsuario vista, ClienteAPIService apiService, IModelo modelo) {
         this.vista = vista;
         this.modelo = modelo;
         this.apiService = apiService;
         this.lectorVoz = LectorVoz.getInstance();
+        this.receptorVoz = ReceptorVozVosk.getInstance();
 
         iniciarEventos();
         new Thread(() -> {
@@ -42,7 +49,7 @@ public class ControladorUsuario {
         vista.addInvitadoListener(e -> continuarInvitado());
         vista.addContinuarListener(e -> continuar());
         vista.addVolverListener(e -> volver());
-        vista.addMicrofonoListener(e -> activarMicrofono());
+        vista.addMicrofonoListener(e -> manejarMicrofono());
     }
 
     private void buscarCliente() {
@@ -81,7 +88,7 @@ public class ControladorUsuario {
     private void continuarInvitado() {
         ClienteInvitado invitado = new ClienteInvitado("Invitado");
         lectorVoz.hablar("Continuando como invitado");
-        
+
         vista.dispose();
 
         VistaPedidoOnline pedido = new VistaPedidoOnline();
@@ -92,18 +99,15 @@ public class ControladorUsuario {
 
     private void continuar() {
         if (clienteActual == null) {
-             vista.actualizarEstado(
+            vista.actualizarEstado(
                     "Primero debes buscar un cliente"
             );
             lectorVoz.hablar("Primero debes buscar un cliente");
             return;
         }
         lectorVoz.hablar("Bienvenido " + clienteActual.getNombre());
-     
 
         vista.dispose();
-        
-
         VistaPedidoOnline pedido = new VistaPedidoOnline();
         new ControladorPedido(pedido, modelo, clienteActual);
         pedido.setVisible(true);
@@ -123,21 +127,79 @@ public class ControladorUsuario {
 
     }
 
-    private void activarMicrofono() {
-        vista.actualizarEstado(
-                "Micrófono activado"
-        );
-        lectorVoz.hablar(
-                "Micrófono activado"
-        );
+    private void manejarMicrofono() {
+        if (receptorVoz.isGrabando()) {
+            receptorVoz.detenerGrabacion();
+            lectorVoz.hablar("Microfono desactivado");
+            vista.actualizarEstado("Microfono desactivado");
+        } else {
+            try {
+                receptorVoz.setManejadorComando(cmd -> {
+                    switch (cmd) {
+                        case BUSCAR ->
+                            buscarCliente();
+                        case CONTINUAR ->
+                            continuar();
+                        case VOLVER ->
+                            volver();
+                        default ->
+                            lectorVoz.hablar("Comando no reconocido.");
+                    }
+                });
 
-        /*
-         Aquí luego conectas Vosk:
-         
-         String texto = reconocedor.escuchar();
-         
-         vista.setTextoBusqueda(texto);
-         */
+                receptorVoz.setManejadorTexto(texto -> {
+                    if (texto == null || texto.isEmpty()) {
+                        return;
+                    }
+                    if (texto.toLowerCase().contains("invitado")) {
+                        continuarInvitado();
+                    } else {
+                        String numero = convertirPalabraANumero(texto);
+                        if (numero.matches("\\d+")) {
+                            vista.setTextoBusqueda(numero);
+                            buscarCliente();
+                        } else {
+                            lectorVoz.hablar("No entendi. Di: id digito por digito, invitado, continuar o volver");
+                        }
+                    }
+                });
+
+                receptorVoz.iniciarGrabacion();
+                lectorVoz.hablar("Microfono activado.");
+                vista.actualizarEstado("Escuchando...");
+            } catch (Exception ex) {
+                vista.mostrarError("Error: " + ex.getMessage());
+            }
+        }
     }
-    
+
+    private String convertirPalabraANumero(String texto) {
+        String lower = texto.toLowerCase().trim();
+
+        Map<String, String> mapa = new HashMap<>();
+        mapa.put("uno", "1");
+        mapa.put("dos", "2");
+        mapa.put("tres", "3");
+        mapa.put("cuatro", "4");
+        mapa.put("cinco", "5");
+        mapa.put("seis", "6");
+        mapa.put("siete", "7");
+        mapa.put("ocho", "8");
+        mapa.put("nueve", "9");
+        mapa.put("cero", "0");
+
+        String[] palabras = lower.split("\\s+");
+        String resultado = "";
+
+        for (String palabra : palabras) {
+            String digito = mapa.get(palabra);
+            if (digito == null) {
+                return texto;
+            }
+            resultado = resultado + digito;
+        }
+
+        return resultado;
+    }
+
 }

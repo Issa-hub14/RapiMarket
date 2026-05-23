@@ -37,7 +37,7 @@ public class ReceptorVozVosk {
     private boolean enviarProductoParaEliminar = false;
 
     public enum Comando {
-        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR, LEER
+        BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR, LEER, CONTINUAR
     }
 
     private ReceptorVozVosk() {
@@ -76,6 +76,8 @@ public class ReceptorVozVosk {
         mapaComandos.put("confirmar", Comando.CONFIRMAR);
         mapaComandos.put("leer", Comando.LEER);
         mapaComandos.put("lee", Comando.LEER);
+        mapaComandos.put("continuar", Comando.CONTINUAR);
+        mapaComandos.put("continua", Comando.CONTINUAR);
     }
 
     private void cargarModelo() {
