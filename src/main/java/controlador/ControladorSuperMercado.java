@@ -31,7 +31,6 @@ public class ControladorSuperMercado {
         this.receptorVoz = ReceptorVozVosk.getInstance();
 
         conectarBotones();
-        
         refrescarLista();
     }
 
@@ -133,7 +132,7 @@ public class ControladorSuperMercado {
                     case ANTERIOR -> anteriorProducto();
                     case VOLVER -> volver();
                     case AGREGAR, ELIMINAR, LEER_CARRITO, CONFIRMAR -> {
-                        lectorVoz.hablar("Este comando no está disponible en el supermercado. Ve a tu lista de compras.");}
+                        lectorVoz.hablar("Este comando no está disponible en el supermercado");}
                     
                 }
             });

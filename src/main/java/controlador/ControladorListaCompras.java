@@ -29,7 +29,7 @@ public class ControladorListaCompras {
         this.receptorVoz = ReceptorVozVosk.getInstance();
 
         conectarBotones();
-        configurarVoz();
+        //configurarVoz();
         cargarCatalogoInicial();
         actualizarLista();
     }
@@ -91,8 +91,8 @@ public class ControladorListaCompras {
     private void buscar() {
 
         String texto = vista.getTextoBusqueda();
-        if (texto.isBlank()) {
-            lectorVoz.hablar("Escribe un producto para buscar");
+        if (texto == null || texto.isBlank()) {
+            lectorVoz.hablar("Di o escribe el producto que deseas buscar.");
             return;
         }
 
@@ -100,7 +100,7 @@ public class ControladorListaCompras {
 
         vista.mostrarResultados(resultados);
         lectorVoz.hablar("Resultados para " + texto);
-        
+
         if (!resultados.isEmpty()) {
             lectorVoz.hablar("Primer resultado: " + resultados.get(0).getNombre());
         }
@@ -144,7 +144,7 @@ public class ControladorListaCompras {
 
     private void volver() {
         if (receptorVoz.isGrabando()) {
-         receptorVoz.detenerGrabacion();
+            receptorVoz.detenerGrabacion();
         }
         vista.setVisible(false);
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -160,15 +160,41 @@ public class ControladorListaCompras {
     private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
-            lectorVoz.hablar("Micrófono desactivado");
-            vista.actualizarEstado("Micrófono desactivado");
+            lectorVoz.hablar("Microfono desactivado");
+            vista.actualizarEstado("Microfono desactivado");
         } else {
             try {
+                receptorVoz.setEnviarProductoParaAgregar(false);
+                receptorVoz.setEnviarProductoParaEliminar(false);
+
+                receptorVoz.setManejadorComando(cmd -> {
+                    switch (cmd) {
+                        case AGREGAR ->
+                            agregarALista();
+                        case REPETIR ->
+                            vista.repetirIndicacion();
+                        case ELIMINAR ->
+                            quitarDeLista();
+                        case VOLVER ->
+                            volver();
+                        case LEER_CARRITO, CONFIRMAR -> {
+                            lectorVoz.hablar("Este comando no está disponible en el supermercado. Ve a tu lista de compras.");
+                        }
+
+                    }
+                });
+
+                receptorVoz.setManejadorTexto(producto -> {
+                    if (producto != null && !producto.isEmpty()) {
+                        buscar();
+                    }
+                });
+
                 receptorVoz.iniciarGrabacion();
-                lectorVoz.hablar("Micrófono activado. Di: buscar, agregar, quitar, repetir, siguiente, anterior o volver");
-                vista.actualizarEstado("Micrófono activado - Escuchando...");
+                lectorVoz.hablar("Microfono activado.");
+                vista.actualizarEstado("Escuchando...");
             } catch (Exception ex) {
-                vista.mostrarError("Error al acceder al micrófono: " + ex.getMessage());
+                vista.mostrarError("Error: " + ex.getMessage());
             }
         }
     }
