@@ -85,7 +85,6 @@ public class VistaPedidoOnline extends VistaBase {
 
         lblTotal.setForeground(new Color(34, 136, 74));
 
-        // Botones
         aplicarEstiloBoton(btnBuscar, new Color(162, 225, 225), "Buscar producto");
         aplicarEstiloBoton(btnAgregar, new Color(146, 195, 98), "Agregar al carrito");
         aplicarEstiloBoton(btnEliminar, new Color(235, 93, 93), "Eliminar del carrito");
@@ -166,13 +165,18 @@ public class VistaPedidoOnline extends VistaBase {
 
     public void actualizarCarrito(String resumen, double total) {
         txtCarrito.setText(resumen);
-        lblTotal.setText("Total: $" + (int) total); // OJO PRECIO
+        lblTotal.setText("Total: $" + (int) total); //precio
         
     }
 
     public String getTextoBusqueda() {
         return txtBuscar.getText().trim();
     }
+    
+     public void setTextoBusqueda(String texto) {
+         txtBuscar.setText(texto);
+    }
+
 
     public String getProductoSeleccionado() {
         return lstResultados.getSelectedValue();

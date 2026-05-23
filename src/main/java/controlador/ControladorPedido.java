@@ -11,34 +11,33 @@ package controlador;
 import modelo.*;
 import vista.VistaPedidoOnline;
 import util.LectorVoz;
-import util.ReceptorVoz;
-import util.ReceptorVoz.Comando;
+import util.ReceptorVozVosk;
+import util.ReceptorVozVosk.Comando;
 import java.util.List;
 import servicio.PuntosDBService;
 import servicio.VentaTXTService;
-
 
 public class ControladorPedido {
 
     private final VistaPedidoOnline vista;
     private final IModelo modelo;
     private final LectorVoz lectorVoz;
-    private final ReceptorVoz receptorVoz;
+    private final ReceptorVozVosk receptorVoz;
     private final PuntosDBService puntosDBService;
     private final ClienteRegistrado clienteActual;
     private final VentaTXTService ventaTXTService;
+    private Comando ultimoComando = null;
 
     public ControladorPedido(VistaPedidoOnline vista, IModelo modelo, ClienteRegistrado clienteActual) {
         this.vista = vista;
         this.modelo = modelo;
         this.lectorVoz = LectorVoz.getInstance();
-        this.receptorVoz = new ReceptorVoz();
+        this.receptorVoz = ReceptorVozVosk.getInstance();
         this.puntosDBService = new PuntosDBService();
         this.clienteActual = clienteActual;
         this.ventaTXTService = new VentaTXTService();
 
         conectarBotones();
-        configurarVoz();
         vista.mostrarResultados(modelo.obtenerCatalogo());
         actualizarCarritoEnVista();
 
@@ -54,37 +53,9 @@ public class ControladorPedido {
         vista.addBtnConfirmarListener(e -> confirmarPedido());
         vista.addBtnLeerCarritoListener(e -> leerCarrito());
         vista.addBtnVolverListener(e -> volver());
-        vista.addBtnMicrofonoListener(e -> activarMicrofono());
+        vista.addBtnMicrofonoListener(e -> manejarMicrofono());
 
         vista.addDobleClickProductoListener(e -> agregarSeleccionado());
-    }
-
-    private void configurarVoz() {
-        receptorVoz.setManejadorComando(cmd -> {
-            switch (cmd) {
-                case BUSCAR ->
-                    buscar();
-                case AGREGAR ->
-                    agregarSeleccionado();
-                case ELIMINAR ->
-                    eliminarSeleccionado();
-                case CONFIRMAR ->
-                    confirmarPedido();
-                case LEER_CARRITO ->
-                    leerCarrito();
-                case VOLVER ->
-                    volver();
-                default ->
-                    lectorVoz.hablar(
-                            "Di: buscar, agregar, eliminar, confirmar, carrito o volver.");
-            }
-        });
-
-        receptorVoz.setManejadorTexto(texto -> {
-            vista.actualizarEstado("Buscando: " + texto);
-            List<Producto> resultados = modelo.buscarProductos(texto);
-            vista.mostrarResultados(resultados);
-        });
     }
 
     private void buscar() {
@@ -96,6 +67,9 @@ public class ControladorPedido {
         List<Producto> resultados = modelo.buscarProductos(termino);
         vista.mostrarResultados(resultados);
         vista.actualizarEstado("Búsqueda: " + termino);
+        if (!resultados.isEmpty()) {
+            lectorVoz.hablar("Encontre " + resultados.size() + " productos. Primer resultado: " + resultados.get(0).getNombre());
+        }
     }
 
     private void agregarSeleccionado() {
@@ -147,20 +121,19 @@ public class ControladorPedido {
         String resumen = carrito.obtenerResumenParaVoz();
         vista.actualizarEstado("Pedido confirmado — Total: $"
                 + String.format("%,.0f", carrito.obtenerTotal()));
-        
-        double totalCompra= carrito.obtenerTotal();
-        int puntosGanados= (int) totalCompra / 1000;
-        if(clienteActual != null){
-            int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra );
+
+        double totalCompra = carrito.obtenerTotal();
+        int puntosGanados = (int) totalCompra / 1000;
+        if (clienteActual != null) {
+            int puntosTotales = puntosDBService.actualizarPuntos(clienteActual.getId(), clienteActual.getNombre(), totalCompra);
             lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra. Ahora tienes" + puntosTotales + " puntos acumulados. "
-                        + "Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
-        } else{
+                    + "Carrito actualizado. Total: " + modelo.obtenerCarrito().obtenerTotal() + " pesos");
+        } else {
             lectorVoz.hablar(resumen + "Pedido confirmado. Gracias por tu compra.");
-                }
+        }
         ventaTXTService.guardarVenta(carrito);
         carrito.vaciar();
         actualizarCarritoEnVista();
-        
 
     }
 
@@ -171,7 +144,9 @@ public class ControladorPedido {
     }
 
     private void volver() {
-
+        if (receptorVoz.isGrabando()) {
+            receptorVoz.detenerGrabacion();
+        }
         vista.setVisible(false);
 
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -184,26 +159,60 @@ public class ControladorPedido {
         });
     }
 
-    private void activarMicrofono() {
+    private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
-            new Thread(() -> {
-                receptorVoz.detenerGrabacion();
-                receptorVoz.reproducirGrabacion();
-                vista.actualizarEstado("Audio reproducido.");
-            }).start();
-            vista.actualizarEstado("Esperando comando...");
-
+            receptorVoz.detenerGrabacion();
+            lectorVoz.hablar("Microfono desactivado");
+            vista.actualizarEstado("Microfono desactivado");
         } else {
             try {
+                receptorVoz.setEnviarProductoParaAgregar(true);
+                receptorVoz.setEnviarProductoParaEliminar(true);
+
+                receptorVoz.setManejadorComando(cmd -> {
+                    ultimoComando = cmd;
+                    switch (cmd) {
+                        case AGREGAR ->{
+                            }
+                        case ELIMINAR ->{
+                        }
+                        case CONFIRMAR ->
+                            confirmarPedido();
+                        case LEER_CARRITO ->
+                            leerCarrito();
+                        case VOLVER ->
+                            volver();
+                        case SIGUIENTE, REPETIR, LEER, CONTINUAR -> {
+                            lectorVoz.hablar("Este comando no está disponible en el supermercado. Ve a tu lista de compras.");
+                        }
+                    }
+                });
+
+                receptorVoz.setManejadorTexto(producto -> {
+                    if (producto == null || producto.isEmpty()) {
+                        return;
+                    }
+                    if (ultimoComando == Comando.AGREGAR) {
+                        agregarProductoDirecto(producto);
+                        ultimoComando = null;
+                    } else if (ultimoComando == Comando.ELIMINAR) {
+                        eliminarProductoDirecto(producto);
+                        ultimoComando = null;
+                    } else {
+                        vista.setTextoBusqueda(producto);
+                        buscar();
+                    }
+                    }
+                    );
+
                 receptorVoz.iniciarGrabacion();
-                vista.actualizarEstado("Grabando... pulsa de nuevo para detener.");
-            } catch (Exception ex) {
-                vista.mostrarError(
-                        "Error al acceder al micrófono: " + ex.getMessage()
-                );
+                    lectorVoz.hablar("Microfono activado.");
+                    vista.actualizarEstado("Escuchando...");
+                } catch (Exception ex) {
+                vista.mostrarError("Error: " + ex.getMessage());
+            }
             }
         }
-    }
 
     private void actualizarCarritoEnVista() {
         Carrito c = modelo.obtenerCarrito();
@@ -215,5 +224,48 @@ public class ControladorPedido {
                     .append("\n");
         }
         vista.actualizarCarrito(sb.toString(), c.obtenerTotal());
+    }
+
+    private void agregarProductoDirecto(String producto) {
+        if (producto == null || producto.isEmpty()) {
+            lectorVoz.hablar("No entendí qué producto quieres agregar.");
+            return;
+        }
+
+        List<Producto> resultados = modelo.buscarProductos(producto);
+        if (resultados.isEmpty()) {
+            lectorVoz.hablar(producto + " no está disponible en el catálogo.");
+            return;
+        }
+
+        Producto p = resultados.get(0);
+        modelo.obtenerCarrito().agregarProducto(p);
+        actualizarCarritoEnVista();
+        lectorVoz.hablar(p.getNombre() + " agregado al carrito. Total: " + (int) modelo.obtenerCarrito().obtenerTotal() + " pesos");
+    }
+
+    private void eliminarProductoDirecto(String producto) {
+        if (producto == null || producto.isEmpty()) {
+            lectorVoz.hablar("No entendí qué producto quieres eliminar.");
+            return;
+        }
+
+        Carrito carrito = modelo.obtenerCarrito();
+        String productoEncontrado = null;
+        for (Producto p : carrito.getProductos()) {
+            if (p.getNombre().toLowerCase().contains(producto.toLowerCase())) {
+                productoEncontrado = p.getNombre();
+                break;
+            }
+        }
+
+        if (productoEncontrado == null) {
+            lectorVoz.hablar(producto + " no está en tu carrito.");
+            return;
+        }
+
+        carrito.eliminarProducto(productoEncontrado);
+        actualizarCarritoEnVista();
+        lectorVoz.hablar(productoEncontrado + " eliminado del carrito. Total: " + (int) carrito.obtenerTotal() + " pesos");
     }
 }
