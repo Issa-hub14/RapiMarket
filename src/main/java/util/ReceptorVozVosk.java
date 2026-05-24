@@ -4,10 +4,6 @@
  */
 package util;
 
-/**
- *
- * @author isabe
- */
 import org.vosk.Model;
 import org.vosk.Recognizer;
 import javax.sound.sampled.*;
@@ -18,6 +14,12 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Clase encargada de reconocer comandos y texto por voz utilizando el moelo vosk.
+ * Implementa el patrón Singleton para mantener una única instancia de Receptor de voz
+ * 
+ * @author isabe
+ */
 public class ReceptorVozVosk {
 
     private static ReceptorVozVosk instancia;
@@ -27,7 +29,6 @@ public class ReceptorVozVosk {
     private Recognizer recognizer;
     private Thread grabacionThread;
 
-    private StringBuilder textoAcumulado = new StringBuilder();
     private Consumer<String> manejadorTexto;
     private Consumer<Comando> manejadorComando;
 
@@ -36,23 +37,40 @@ public class ReceptorVozVosk {
     private boolean enviarProductoParaAgregar = false;
     private boolean enviarProductoParaEliminar = false;
 
+    /**
+     * Enumeración de comandos de voz disponibles
+     */
     public enum Comando {
         BUSCAR, SIGUIENTE, ANTERIOR, REPETIR, AGREGAR, ELIMINAR, VOLVER, LEER_CARRITO, CONFIRMAR, LEER, CONTINUAR
     }
 
+    /**
+     * Constructor privado para implementar Singleton
+     */
     private ReceptorVozVosk() {
         cargarModelo();
         inicializarComandos();
     }
 
+    /**
+     * Define si enviarán productos para agregar
+     * @param enviar Estado de envio de productos
+     */
     public void setEnviarProductoParaAgregar(boolean enviar) {
         this.enviarProductoParaAgregar = enviar;
     }
-
+    /**
+     * Define si enviarán productos para eliminar
+     * @param enviar Estado de envio de productos
+     */
     public void setEnviarProductoParaEliminar(boolean enviar) {
         this.enviarProductoParaEliminar = enviar;
     }
 
+    /**
+     * Obtiene la instancia única del receptor de voz
+     * @return Instancia de receptorVozVosk
+     */
     public static synchronized ReceptorVozVosk getInstance() {
         if (instancia == null) {
             instancia = new ReceptorVozVosk();
@@ -60,6 +78,9 @@ public class ReceptorVozVosk {
         return instancia;
     }
 
+    /**
+     * Inicializa el mapa de comandos disponibles
+     */
     private void inicializarComandos() {
         mapaComandos.put("agregar", Comando.AGREGAR);
         mapaComandos.put("agrega", Comando.AGREGAR);
@@ -80,6 +101,9 @@ public class ReceptorVozVosk {
         mapaComandos.put("continua", Comando.CONTINUAR);
     }
 
+    /**
+     * Carga el modelo de reconocimiento vosk
+     */
     private void cargarModelo() {
         try {
             String rutaModelo = "C:/Users/isabe/Downloads/VozATextoApp/src/modelos/vosk-model-small-es-0.42/vosk-model-small-es-0.42";
@@ -90,14 +114,27 @@ public class ReceptorVozVosk {
         }
     }
 
+    /**
+     * Define el manejador para procesar texto reconocido
+     * @param manejador Función encargada de procesar texto
+     */
     public void setManejadorTexto(Consumer<String> manejador) {
         this.manejadorTexto = manejador;
     }
 
+    /**
+     * Define el manejador para procesar comandos reconocidos 
+     * @param manejador Función encargada de procesar comandos 
+     */
     public void setManejadorComando(Consumer<Comando> manejador) {
         this.manejadorComando = manejador;
     }
 
+    /**
+     * Extraer texto reconocido de un Json
+     * @param json Texto Json generado por vosk
+     * @return texto reconocido
+     */
     private String extraerTextoDelJson(String json) {
         Pattern pattern = Pattern.compile("\"text\"\\s*:\\s*\"([^\"]*)\"");
         Matcher matcher = pattern.matcher(json);
@@ -107,6 +144,11 @@ public class ReceptorVozVosk {
         return "";
     }
 
+    /**
+     * Convierte un texto en un comando reconocido
+     * @param texto Texto reconocido por vosk
+     * @return Correspondiente o null
+     */
     private Comando textoAComando(String texto) {
         if (texto == null || texto.isBlank()) {
             return null;
@@ -120,6 +162,12 @@ public class ReceptorVozVosk {
         return null;
     }
 
+    /**
+     * Extrae el nombre de un producto desde un comando
+     * @param texto texto reconocido
+     * @param cmd comando indicado
+     * @return nombre del producto extraido
+     */
     private String extraerProducto(String texto, Comando cmd) {
         if (cmd == Comando.AGREGAR) {
             return texto.replaceFirst("(?i)agregar|agrega", "").trim();
@@ -131,6 +179,9 @@ public class ReceptorVozVosk {
         return "";
     }
 
+    /**
+     * Inicia la grabación y reconocimiento de voz 
+     */
     public void iniciarGrabacion() {
         if (grabando || model == null) {
             return;
@@ -145,7 +196,6 @@ public class ReceptorVozVosk {
 
             recognizer = new Recognizer(model, 16000);
             grabando = true;
-            textoAcumulado = new StringBuilder();
 
             grabacionThread = new Thread(() -> {
                 byte[] data = new byte[4096];
@@ -208,6 +258,9 @@ public class ReceptorVozVosk {
         }
     }
 
+    /**
+     * Detinene la grabación y libera recursos del micrófono
+     */
     public void detenerGrabacion() {
         grabando = false;
         try {
@@ -223,6 +276,10 @@ public class ReceptorVozVosk {
         }
     }
 
+    /**
+     * Verifica si actualmente se está grabando un audio
+     * @return True si se está grabando, false en caso contrario
+     */
     public boolean isGrabando() {
         return grabando;
     }

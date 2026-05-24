@@ -4,14 +4,17 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Vista principal del sistema de compras accesible.
+ * Permite al usuario navegar entre las diferentes opciones del sistema.
+ * También permite activar o desactivar la asistencia por voz
+ * 
+ * @author isabe
+ */
 public class VistaPrincipal extends VistaBase {
 
     private ActionListener listenerSupermercado;
@@ -30,12 +33,18 @@ public class VistaPrincipal extends VistaBase {
         lectorVoz.hablar("Bienvenido. Que deseas hacer hoy Recuerda un click para escuchar, otro para realizar acciones");
     }
 
+    /**
+     * Inicializa los componentes visuales de la ventana
+     */
     @Override
     protected void initComponentes() {
         initComponents();
         configurarEstilos();
     }
 
+    /**
+     * Configura estilos, eventos y comportamientos de los componentes.
+     */
     private void configurarEstilos() {
         chkVoz.setSelected(true);
         chkVoz.setOpaque(false);
@@ -45,6 +54,12 @@ public class VistaPrincipal extends VistaBase {
         aplicarEstiloBoton(btnLista, new Color(255, 255, 255), "Mi lista de compras");
     }
 
+    /**
+     * Aplica estilo y comportamiento personalizado a un botón
+     * @param btn Botón a configurar
+     * @param color Color principal del botón
+     * @param textoVoz Texto reproducido por voz
+     */
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
         btn.setBackground(color);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -54,17 +69,29 @@ public class VistaPrincipal extends VistaBase {
         }
 
         btn.addMouseListener(new MouseAdapter() {
+            /**
+             * Cambia el color del botón cuando el mouse entra
+             * @param e evento del mouse
+             */
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
 
             }
 
+            /**
+             * Restaura el color original del botón
+             * @param e evento del mouse
+             */
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
 
+            /**
+             * Ejecuta la acción del botón seleccionado
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ultimoBoton != btn) {
@@ -106,10 +133,18 @@ public class VistaPrincipal extends VistaBase {
         this.listenerVoz = l;
     }
 
+    /**
+     * Indica si la asistencia por voz está activa
+     * @return True si la voz está habilitada, false en caso contrario
+     */
     public boolean isVozActiva() {
         return chkVoz.isSelected();
     }
     
+    /**
+     * Activa o desactiva la asitencia por voz
+     * @param activa Estado deseado de la voz
+     */
     public void setVozActiva(boolean activa) {
         chkVoz.setSelected(activa);
         lectorVoz.setActivo(activa);

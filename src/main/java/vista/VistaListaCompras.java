@@ -4,16 +4,18 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import modelo.Producto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+/**
+ * Vista encargada de gestionar la lista de compras del usuario. Permite buscar
+ * productos, agrgarlos o quitarlos de la lista y utilizar comandos por voz
+ *
+ * @author isabe
+ */
 public class VistaListaCompras extends VistaBase {
 
     /**
@@ -37,12 +39,18 @@ public class VistaListaCompras extends VistaBase {
         lectorVoz.hablar("Modo Lista. Selecciona un producto para agregar a tu lista.");
     }
 
+    /**
+     * Inicializa los componentes visuales de la ventana
+     */
     @Override
     protected void initComponentes() {
         initComponents();
         configurarEstilos();
     }
 
+    /**
+     * Configura estilos, eventos y comportamientos de los componentes.
+     */
     private void configurarEstilos() {
         lstResultados.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         lstResultados.setFixedCellHeight(38);
@@ -67,6 +75,10 @@ public class VistaListaCompras extends VistaBase {
         });
 
         lstResultados.addMouseListener(new MouseAdapter() {
+            /**
+             * Detecta dobleClick sobre un producto
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && accionDobleClick != null) {
@@ -100,6 +112,12 @@ public class VistaListaCompras extends VistaBase {
         aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
+    /**
+     * Aplica estilo y comportamiento personalizado a un botón
+     * @param btn Botón a configurar
+     * @param color Color principal del botón
+     * @param textoVoz Texto reproducido por voz
+     */
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
         btn.setBackground(color);
         btn.setFocusPainted(false);
@@ -111,16 +129,28 @@ public class VistaListaCompras extends VistaBase {
         }
 
         btn.addMouseListener(new MouseAdapter() {
+            /**
+             * Cambia el color del botón cuando el mouse entra
+             * @param e evento del mouse
+             */
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
             }
 
+            /**
+             * Restaura el color original del botón
+             * @param e evento del mouse
+             */
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
 
+            /**
+             * Ejecuta la acción del botón seleccionado
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ultimoBoton != btn) {
@@ -153,6 +183,10 @@ public class VistaListaCompras extends VistaBase {
         });
     }
 
+    /**
+     * Selecciona un producto de la lista por Indice
+     * @param indice posición del producto
+     */
     public void seleccionarProducto(int indice) {
         if (lstResultados != null && indice >= 0 && indice < lstResultados.getModel().getSize()) {
             lstResultados.setSelectedIndex(indice);
@@ -160,6 +194,10 @@ public class VistaListaCompras extends VistaBase {
         }
     }
 
+    /**
+     * Muestra los resultados encontrados en la lista de resultados
+     * @param productos Lista de productos encontrados
+     */
     public void mostrarResultados(List<Producto> productos) {
         DefaultListModel<String> model = new DefaultListModel<>();
         for (Producto p : productos) {
@@ -168,6 +206,10 @@ public class VistaListaCompras extends VistaBase {
         lstResultados.setModel(model);
     }
 
+    /**
+     * Actualiza la lista de mercado mostrada al usuario
+     * @param lista Lista de productos del mercado
+     */
     public void actualizarListaMercado(List<String> lista) {
         listaLista = false;
         DefaultListModel<String> model = new DefaultListModel<>();
@@ -218,6 +260,10 @@ public class VistaListaCompras extends VistaBase {
         this.listenerMicrofono = l;
     }
 
+    /**
+     * Reproduce la información de un producto por voz
+     * @param p Producto a mostrar
+     */
     public void mostrarInfoProducto(Producto p) {
         ultimoProducto = p;
         lectorVoz.hablar(
@@ -226,6 +272,9 @@ public class VistaListaCompras extends VistaBase {
         );
     }
 
+    /**
+     * Lee en voz alta la lista de compras actual
+     */
     public void leerLista() {
         DefaultListModel<String> model = (DefaultListModel<String>) lstMiLista.getModel();
 
@@ -235,14 +284,14 @@ public class VistaListaCompras extends VistaBase {
         }
 
         String mensaje = "Tu lista tiene" + model.size() + "Productos";
-        
+
         for (int i = 0; i < model.size(); i++) {
-            if(i>0){
+            if (i > 0) {
                 mensaje = mensaje + ",";
             }
             mensaje = mensaje + model.get(i);
         }
-            lectorVoz.hablar(mensaje);
+        lectorVoz.hablar(mensaje);
     }
 
     /**
@@ -382,12 +431,6 @@ public class VistaListaCompras extends VistaBase {
                 .addGap(55, 55, 55)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnMicrofono, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -407,11 +450,19 @@ public class VistaListaCompras extends VistaBase {
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 281, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(22, Short.MAX_VALUE))))))
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(155, 155, 155)
-                .addComponent(lblTitulo)
-                .addContainerGap())
+                                .addContainerGap(22, Short.MAX_VALUE))))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(100, 100, 100)
+                                .addComponent(lblTitulo))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnMicrofono, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 328, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnBuscar, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -430,17 +481,17 @@ public class VistaListaCompras extends VistaBase {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))
                 .addGap(16, 16, 16)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnQuitarLista, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGap(0, 8, Short.MAX_VALUE)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnLeerLista, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnAgregarLista, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(btnVolver, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(52, 52, 52))
+                .addGap(36, 36, 36))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

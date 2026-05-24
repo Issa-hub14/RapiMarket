@@ -4,20 +4,20 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import util.LectorVoz;
 
+/**
+ * Clase base para las vistas de la aplicación
+ * Contiene configuraciones y comportamientos compartidos entre todas las interfaces gráficas
+ * 
+ * @author isabe
+ */
 public abstract class VistaBase extends JFrame implements IVista {
 
     protected LectorVoz lectorVoz;
-
-    // Barra de estado inferior — compartida por todas las vistas
     private JLabel lblEstado;
 
     protected VistaBase(String titulo) {
@@ -28,9 +28,14 @@ public abstract class VistaBase extends JFrame implements IVista {
         agregarBarraEstado();  
     }
 
+    /**
+     * Inicializa los componentes específicos de la vista
+     */
     protected abstract void initComponentes();
 
-
+    /**
+     * Configura las propiedades geenerales de la ventana
+     */
     private void configurarVentana() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -38,6 +43,9 @@ public abstract class VistaBase extends JFrame implements IVista {
         setResizable(false);
     }
 
+    /**
+     * Agrega la barra inferior de estado en la ventana
+     */
     private void agregarBarraEstado() {
         lblEstado = new JLabel(" Listo");
         lblEstado.setFont(new Font("Segoe UI", Font.ITALIC, 13));
@@ -48,6 +56,10 @@ public abstract class VistaBase extends JFrame implements IVista {
         add(lblEstado, BorderLayout.SOUTH);
     }
 
+    /**
+     * Actualiza el mensaje
+     * @param mensaje Mensaje de estado
+     */
     @Override
     public void actualizarEstado(String mensaje) {
         SwingUtilities.invokeLater(()
@@ -55,6 +67,10 @@ public abstract class VistaBase extends JFrame implements IVista {
         );
     }
 
+    /**
+     * Muestra un mensaje de error en pantalla y mediante voz
+     * @param error Mensaje de error a mostar
+     */
     @Override
     public void mostrarError(String error) {
         SwingUtilities.invokeLater(() -> {

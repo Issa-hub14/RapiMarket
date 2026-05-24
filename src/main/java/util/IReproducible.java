@@ -5,7 +5,8 @@
 package util;
 
 /**
- *
+ * Interfaz que define las operaciones básicas para la reproducción del a voz en la aplicación
+ * 
  * @author isabe
  */
 public interface IReproducible {

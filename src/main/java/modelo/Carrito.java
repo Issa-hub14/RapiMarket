@@ -11,6 +11,12 @@ package modelo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Clase encargada de gestionar los productos agregados al carrito de compras
+ * Permite agregar, eliminar, calcular totales y generar resumenes 
+ * 
+ * @author isabe
+ */
 public class Carrito {
 
     private List<Producto> productos;
@@ -18,7 +24,12 @@ public class Carrito {
     public Carrito() {
         this.productos = new ArrayList<>();
     }
-
+    
+    /**
+     * Agrega un producto al carrito.
+     * Si el producto ya existe aumenta su cantidad
+     * @param p Producto que desea agregar
+     */
     public void agregarProducto(Producto p) {
         if (p == null) {
             return;
@@ -32,6 +43,10 @@ public class Carrito {
         productos.add(p);
     }
 
+    /**
+     * Elimina un producto del carrito utilizando su nombre
+     * @param nombre Nombre del producto a eliminar 
+     */
     public void eliminarProducto(String nombre) {
         if (nombre == null || nombre.isBlank()) {
             return;
@@ -39,10 +54,18 @@ public class Carrito {
         productos.removeIf(p -> p.getNombre().equalsIgnoreCase(nombre));
     }
 
+    /**
+     * Obtiene la lista de productos del carrito
+     * @return Lista de productos almacenados
+     */
     public List<Producto> getProductos() {
         return productos;
     }
 
+    /**
+     * Calcula el total de la compra
+     * @return valor total de los producto del carrto
+     */
     public double obtenerTotal() {
         double total = 0;
 
@@ -53,6 +76,10 @@ public class Carrito {
         return total;
     }
 
+    /**
+     * Obtiene la cantidad total de productos en el carrito
+     * @return Cantidad total de items
+     */
     public int getCantidadItems() {
         int cantidad = 0;
 
@@ -63,10 +90,17 @@ public class Carrito {
         return cantidad;
     }
 
+    /**
+     * Vacia completamente le carrito de compras
+     */
     public void vaciar() {
         productos.clear();
     }
 
+    /**
+     * Genera un resumen del carrito para ser leido por voz
+     * @return Texto con el resumen del carrito
+     */
     public String obtenerResumenParaVoz() {
         if (productos.isEmpty()) {
             return "Tu carrito está vacío";
@@ -82,6 +116,10 @@ public class Carrito {
 
     }
 
+    /**
+     * Devuelve una representación en texto del carrito
+     * @return Texto con la información del los productos y el total
+     */
     @Override
     public String toString() {
         if (productos.isEmpty()) {

@@ -16,11 +16,24 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import org.json.JSONObject;
 
+/**
+ * Servicio encargado de consultar información de cliente
+ * Mediante una API externa
+ * 
+ * @author isabe
+ */
 public class ClienteAPIService {
 
     private static final HttpClient httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build();
     private static final String API_URL = "https://dummyjson.com/users/";
 
+    /**
+     * Obtiene la infromación del cliente utilizando su ID
+     * @param id Identificación del cliente
+     * @return Cliente registrado obtenido desde la API o null si no se encuentra
+     * @throws IOException Error durante la conexión con la API
+     * @throws InterruptedException Error durante la ejecucución de la petición
+     */
     public ClienteRegistrado getCliente(int id) throws IOException, InterruptedException {
 
         // Construir petición

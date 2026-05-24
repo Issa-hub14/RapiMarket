@@ -5,7 +5,8 @@
 package modelo;
 
 /**
- *
+ * Interfaz que define las operaciones principales del modelo utilizadas en la aplicación
+ * 
  * @author isabe
  */
 import java.util.List;

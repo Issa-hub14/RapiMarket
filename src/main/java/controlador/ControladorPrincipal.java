@@ -16,6 +16,11 @@ import vista.VistaSuperMercado;
 import util.LectorVoz;
 import servicio.ClienteAPIService;
 
+/**
+ * Controlador Principal de la aplicación, se encarga de gestionar la navegación entre las diferentes vistas
+ * 
+ * @author isabe
+ */
 public class ControladorPrincipal {
 
     private final VistaPrincipal vista;
@@ -38,6 +43,9 @@ public class ControladorPrincipal {
 
     }
 
+    /**
+     * Conecta los botones y los eventos de la vista principal
+     */
     private void conectarBotones() {
         vista.addBtnSupermercadoListener(e -> abrirSupermercado());
 
@@ -55,6 +63,9 @@ public class ControladorPrincipal {
         });
     }
 
+    /**
+     * Abre el módulo de pedidos en linea
+     */
     private void abrirPedidoOnline() {
         if (vistaUsuario == null) {
             vistaUsuario = new VistaUsuario();
@@ -65,6 +76,9 @@ public class ControladorPrincipal {
              
     }
 
+    /**
+     * Abre el módulo de super Mercado
+     */
     private void abrirSupermercado() {
         if (vistaSuper == null) {
             vistaSuper = new VistaSuperMercado();
@@ -76,6 +90,9 @@ public class ControladorPrincipal {
         
     }
     
+    /**
+     * Abre la vista de la lista de compras
+     */
     private void abrirLista() {
         if (vistaLista == null) {
             vistaLista = new VistaListaCompras();
@@ -86,6 +103,9 @@ public class ControladorPrincipal {
         
     }
 
+    /**
+     * Inicia la aplicación mostrando la vista principal
+     */
     public void iniciar() {
         vista.setVisible(true);
     }

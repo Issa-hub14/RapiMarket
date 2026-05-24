@@ -5,7 +5,7 @@
 package controlador;
 
 /**
- *
+ * 
  * @author isabe
  */
 import modelo.ClienteInvitado;
@@ -21,10 +21,16 @@ import modelo.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controlador encargado de gestionar la interacción entre la vista, el modelo y los servicios relacionados con los usuarios.
+ * 
+ * @author isabe
+ */
+
 public class ControladorUsuario {
 
-    private VistaUsuario vista;
-    private ClienteAPIService apiService;
+    private final VistaUsuario vista;
+    private final ClienteAPIService apiService;
     private final IModelo modelo;
     private ClienteRegistrado clienteActual;
     private final LectorVoz lectorVoz;
@@ -43,6 +49,9 @@ public class ControladorUsuario {
         }).start();
     }
 
+    /**
+     * Inicializa todos los eventos y listeners de la vista
+     */
     private void iniciarEventos() {
 
         vista.addBuscarListener(e -> buscarCliente());
@@ -52,6 +61,9 @@ public class ControladorUsuario {
         vista.addMicrofonoListener(e -> manejarMicrofono());
     }
 
+    /**
+     * Busca un cliente registrado utilizando el ID ingresado
+     */
     private void buscarCliente() {
 
         String id = vista.getIdCliente();
@@ -84,7 +96,10 @@ public class ControladorUsuario {
 
         }
     }
-
+    
+    /**
+     * Continuar el proceso como ClienteInvitado (sin ID)
+     */
     private void continuarInvitado() {
         ClienteInvitado invitado = new ClienteInvitado("Invitado");
         lectorVoz.hablar("Continuando como invitado");
@@ -96,7 +111,10 @@ public class ControladorUsuario {
         pedido.setVisible(true);
 
     }
-
+    
+    /**
+     * Continua el proceso utilizando el cliente registrado actual 
+     */
     private void continuar() {
         if (clienteActual == null) {
             vista.actualizarEstado(
@@ -113,7 +131,10 @@ public class ControladorUsuario {
         pedido.setVisible(true);
 
     }
-
+    
+    /**
+     * Regresa a la vistaPrincipal de la aplicación
+     */
     private void volver() {
         vista.setVisible(false);
         javax.swing.SwingUtilities.invokeLater(() -> {
@@ -126,7 +147,10 @@ public class ControladorUsuario {
         });
 
     }
-
+    
+    /**
+     * Activa o desactiva el reconocimiento por voz
+     */
     private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -172,7 +196,11 @@ public class ControladorUsuario {
             }
         }
     }
-
+    /**
+     * Convierte numeros escritos en palabras a su representación numérica   
+     * @param texto Texto ingresado por el usuario en palabras
+     * @return Cadena con los numeros convertidos o el texto original si alguna palabra no es reconocida
+     */
     private String convertirPalabraANumero(String texto) {
         String lower = texto.toLowerCase().trim();
 

@@ -5,6 +5,8 @@
 package modelo;
 
 /**
+ * Clase abstracta que representa una persona dentro del sistema Define
+ * atributos y comportamientos comunes para los tipos de clientes
  *
  * @author isabe
  */
@@ -12,13 +14,10 @@ public abstract class Persona {
 
     protected String nombre;
     protected int id;
-    protected boolean accesoActivo;
 
     public Persona(String nombre, int id) {
-
         this.nombre = nombre;
         this.id = id;
-        this.accesoActivo = true;
     }
 
     public String getNombre() {
@@ -36,24 +35,22 @@ public abstract class Persona {
     }
 
     public void setId(int identi) {
-        
-            this.id = identi;
-        
+        this.id = identi;
     }
 
-    public boolean isAccesibilidadActiva() {
-        return accesoActivo;
-    }
-
-    public void setAccesibilidadActiva(boolean accesoActivo) {
-        this.accesoActivo = accesoActivo;
-    }
-    
+     /**
+      * Obtiene el tipo de cliente
+      * @return Tipo de cliente
+      */
     public abstract String obtenerTipoCliente();
 
+    /**
+     * Devuelve una representación en texto de la persona
+     * @return Información básica de la persona
+     */
     @Override
     public String toString() {
-        
+
         return nombre + " - " + obtenerTipoCliente();
     }
 }

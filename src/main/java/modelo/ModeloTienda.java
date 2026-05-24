@@ -4,11 +4,14 @@
  */
 package modelo;
 
+import java.util.*;
+
 /**
- *
+ * Clase que implementa el modelo principal de la tienda
+ * Getiona productos,carrito de compras y lista de mercado
+ * 
  * @author isabe
  */
-import java.util.*;
 
 public class ModeloTienda implements IModelo {
 
@@ -34,7 +37,10 @@ public class ModeloTienda implements IModelo {
             this.clienteActual = clienteActual;
         }
     }
-
+    
+    /**
+     * Carga los productos iniciales del catalogo
+     */
     private void cargarProductos() {
 
         agregarProductoCatalogo("Leche Entera 1L", 3500, "Lácteos", "Pasillo 1, derecha");
@@ -57,10 +63,22 @@ public class ModeloTienda implements IModelo {
         agregarProductoCatalogo("Shampoo Savital 400ml", 18500, "Aseo", "Pasillo 5, derecha");
     }
 
+    /**
+     * Agrega un producto al catalogo de productos
+     * @param nom Nombre del producto
+     * @param pre Precio del producto
+     * @param cat Categoria del producto
+     * @param pasillo Ubicación del producto en el super mercado
+     */
     private void agregarProductoCatalogo(String nom, double pre, String cat, String pasillo) {
         catalogoProductos.add(new Producto(nom, pre, cat, pasillo));
     }
-
+    
+    /**
+     * Busca productos utilizando un término de búsqueda
+     * @param termino Texto utilizado para buscar productos
+     * @return Lista de productos encontrados
+     */
     @Override
     public List<Producto> buscarProductos(String termino) {
         List<Producto> resultado = new ArrayList<>();
@@ -81,6 +99,11 @@ public class ModeloTienda implements IModelo {
         return resultado;
     }
 
+    /**
+     * Busca un producto utilizando su nombre
+     * @param nombre Nombre del producto
+     * @return Producto encontrado o null si no existe
+     */
     @Override
     public Producto buscarProductoPorNombre(String nombre) {
         for (Producto p : catalogoProductos) {
@@ -91,21 +114,37 @@ public class ModeloTienda implements IModelo {
         return null;
     }
 
+    /**
+     * Obtiene el carrito de compras actual
+     * @return Carrito de compras
+     */
     @Override
     public Carrito obtenerCarrito() {
         return carrito;
     }
-
+    
+    /**
+     * Obtiene el catalogo completo de productos
+     * @return Lista de productos disponibles
+     */
     @Override
     public List<Producto> obtenerCatalogo() {
         return Collections.unmodifiableList(catalogoProductos);
     }
 
+    /**
+     * Obtiene la lista de mercado actual
+     * @return Lista de productos de mercado
+     */
     @Override
     public List<String> obtenerListaDeMercado() {
         return listaDeMercado;
     }
 
+    /**
+     * Agrega un producto a la lista de mercado
+     * @param item Producto que desea agregar
+     */
     @Override
     public void agregarAListaMercado(String item) {
         if (item != null && !item.isBlank() && !listaDeMercado.contains(item)) {
@@ -113,6 +152,10 @@ public class ModeloTienda implements IModelo {
         }
     }
 
+    /**
+     * Elimina un producto de la lista de mercado
+     * @param item Producto que se desea eliminar
+     */
     @Override
     public void eliminarDeListaMercado(String item) {
         listaDeMercado.remove(item);

@@ -5,7 +5,9 @@
 package modelo;
 
 /**
- *
+ * Clase que representa un cliente Invitado dentro del sistema.
+ * Un cliente Invitado realiza compras rápidas sin registro.
+ * 
  * @author isabe
  */
 public class ClienteInvitado extends Persona {
@@ -17,15 +19,27 @@ public class ClienteInvitado extends Persona {
         this.compraRapida = true;
     }
 
+    /**
+     * Indica si el cliente utiliza compra rápida
+     * @return True si utiliza compra rapido, Falso en caso contrario
+     */
     public boolean isCompraRapida() {
         return compraRapida;
     }
 
+    /**
+     * Obtiene el tipo de cliente
+     * @return Tipo de cliente invitado
+     */
     @Override
     public String obtenerTipoCliente() {
         return "Cliente Invitado";
     }
 
+    /**
+     * Devuelve una representación en texto del cliente invitado
+     * @return Información del cliente invitado
+     */
     @Override
     public String toString() {
         return super.toString()

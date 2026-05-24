@@ -4,16 +4,19 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import modelo.Producto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+/**
+ * Vista encargada de guiar al usuario dentro del super mercado
+ * Permite buscar productos, escuchar indicaciones de ubicación, recorrer productos
+ * de la lista y utilizar comandos por voz
+ * 
+ * @author isabe
+ */
 public class VistaSuperMercado extends VistaBase {
 
     /**
@@ -36,12 +39,18 @@ public class VistaSuperMercado extends VistaBase {
         lectorVoz.hablar("Modo supermercado. Busca un producto o sigue tu lista.");
     }
 
+    /**
+     * Inicializa los componentes visuales de la ventana
+     */
     @Override
     protected void initComponentes() {
         initComponents();
         configurarEstilos();
     }
 
+    /**
+     * Configura estilos, eventos y comportamientos de los componentes.
+     */
     private void configurarEstilos() {
 
         lblProductoActual.setHorizontalAlignment(SwingConstants.CENTER);
@@ -70,6 +79,12 @@ public class VistaSuperMercado extends VistaBase {
         aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
+    /**
+     * Aplica estilo y comportamiento personalizado a un botón
+     * @param btn Botón a configurar
+     * @param color Color principal del botón
+     * @param textoVoz Texto reproducido por voz
+     */
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
         btn.setBackground(color);
         btn.setFocusPainted(false);
@@ -81,16 +96,28 @@ public class VistaSuperMercado extends VistaBase {
         }
 
         btn.addMouseListener(new MouseAdapter() {
+            /**
+             * Cambia el color del botón cuando el mouse entra
+             * @param e evento del mouse
+             */
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
             }
 
+            /**
+             * Restaura el color original del botón
+             * @param e evento del mouse
+             */
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
 
+            /**
+             * Ejecuta la acción del botón seleccionado
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ultimoBoton != btn) {
@@ -156,6 +183,10 @@ public class VistaSuperMercado extends VistaBase {
         this.listenerSeleccionLista = listener;
     }
 
+    /**
+     * Muestra la información del producto encontrado y la reproduce por voz
+     * @param p Producto encontrado
+     */
     public void mostrarInfoProducto(Producto p) {
         ultimoProducto = p;
         if (p == null) {
@@ -177,6 +208,9 @@ public class VistaSuperMercado extends VistaBase {
         );
     }
 
+    /**
+     * Reproduce nuevamente la indicación del último producto consultado
+     */
     public void repetirIndicacion() {
         if (ultimoProducto != null) {
             lectorVoz.hablar(
@@ -189,6 +223,10 @@ public class VistaSuperMercado extends VistaBase {
         }
     }
 
+    /**
+     * Actualiza la lista visual de compras 
+     * @param lista Lista de productos
+     */
     public void actualizarListaMercado(List<String> lista) {
         listaLista = false;
         DefaultListModel<String> model = new DefaultListModel<>();

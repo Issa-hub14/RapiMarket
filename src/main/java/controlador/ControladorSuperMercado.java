@@ -15,6 +15,12 @@ import util.ReceptorVozVosk;
 import util.ReceptorVozVosk.Comando;
 import java.util.List;
 
+/**
+ * Controlador encargado de gestionar las funciones del super Mercado, permite buscar productos, recorrer la lista
+ * de mercado y manejar comandos por voz 
+ * 
+ * @author isabe
+ */
 public class ControladorSuperMercado {
 
     private final VistaSuperMercado vista;
@@ -34,6 +40,9 @@ public class ControladorSuperMercado {
         refrescarLista();
     }
 
+    /**
+     * Conecta todos los botones y elementos de la vista
+     */
     private void conectarBotones() {
         vista.addBtnBuscarListener(e -> buscarProducto(vista.getTextoBusqueda()));
         vista.addBtnSiguienteListener(e -> siguienteProducto());
@@ -43,6 +52,10 @@ public class ControladorSuperMercado {
         vista.addSeleccionListaListener(e -> mostrarProductoDesdeLista(e.getActionCommand()));
     }
 
+    /**
+     * Busca un producto utilizando el texto ingresado
+     * @param texto Nombre del producto a buscar
+     */
     private void buscarProducto(String texto) {
         if (texto == null || texto.isBlank()) {
             lectorVoz.hablar("Di o escribe el producto que deseas buscar.");
@@ -66,10 +79,16 @@ public class ControladorSuperMercado {
         }
     }
 
+    /**
+     * Actualiza la lista de mercado mostrada en la vista
+     */
     public void refrescarLista() {
         vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
     }
 
+    /**
+     * Muestra el siguiente producto de la lista de mercado
+     */
     private void siguienteProducto() {
         List<String> lista = modelo.obtenerListaDeMercado();
         if (lista.isEmpty()) {
@@ -89,6 +108,9 @@ public class ControladorSuperMercado {
         refrescarLista();
     }
 
+    /**
+     * Regresa a la vista principal de la aplicación
+     */
     private void volver() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -104,6 +126,9 @@ public class ControladorSuperMercado {
         });
     }
 
+    /**
+     * Activa o desactiva el reconocimiento por voz
+     */
     private void manejarMicrofono() {
     if (receptorVoz.isGrabando()) {
         receptorVoz.detenerGrabacion();
@@ -140,6 +165,10 @@ public class ControladorSuperMercado {
     }
 }
 
+    /**
+     * Muestra la información de un producto seleccionado desde la lista de Mercado
+     * @param nombreProducto Nombre del producto seleccionado
+     */
     private void mostrarProductoDesdeLista(String nombreProducto) {
         List<String>lista = modelo.obtenerListaDeMercado();
         indiceActual = lista.indexOf(nombreProducto);

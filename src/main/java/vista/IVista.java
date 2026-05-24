@@ -5,7 +5,8 @@
 package vista;
 
 /**
- *
+ * Interfaz que define las operaciones básicas que deben implementar las vistas de la aplicación
+ * 
  * @author isabe
  */
 public interface IVista {

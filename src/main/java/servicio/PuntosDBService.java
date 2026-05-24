@@ -4,19 +4,26 @@
  */
 package servicio;
 
-/**
- *
- * @author isabe
- */
 import java.sql.*;
 
+/**
+ * Servicio encargado de gestionar los puntos acumulados de los cleintes en las bases de datos.
+ * 
+ * @author isabe
+ */
 public class PuntosDBService {
 
     private static final String URL = "jdbc:mysql://localhost:3306/rapimarket_db";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
-    
+    /**
+     * Actualiza los puntos de un cliente despues de una compra
+     * @param idCliente Identificación del cliente
+     * @param nombreCliente Nombre del cliente
+     * @param totalCompra Valor total de la compra
+     * @return Total de puntos acumulados por el cliente
+     */
     public int actualizarPuntos(int idCliente, String nombreCliente, double totalCompra) {
 
         int puntosGanados = calcularPuntos(totalCompra);
@@ -36,12 +43,22 @@ public class PuntosDBService {
         return puntosTotales;
     }
 
-    
+    /**
+     * Calcula la cantidad de puntos obtenidos según el valor de la compra
+     * @param totalCompra Valor total de la compra 
+     * @return Cantidad de puntos ganados
+     */
     private int calcularPuntos(double totalCompra) {
         return (int) totalCompra / 1000;
     }
 
-   
+    /**
+     * Verifica si un cliente ya existe en la base de datos
+     * @param conn Conexión activa a la base de datos
+     * @param idCliente Identificación del cliente
+     * @return True si el cliente existe, False en caso contrario
+     * @throws SQLException Error durante la consulta sql
+     */
     private boolean clienteExiste(Connection conn, int idCliente) throws SQLException {
 
         String sql = "SELECT 1 FROM clientes_puntos WHERE id_cliente = ?";
@@ -55,7 +72,16 @@ public class PuntosDBService {
         }
     }
 
-    
+    /**
+     * Actualiza la información y puntos de un cliente existente
+     * @param conn Conexión activa a la base de datos
+     * @param idCliente Identificación del cliente
+     * @param nombreCliente Nombre del cliente
+     * @param totalCompra Valor total de la compra
+     * @param puntosGanados Puntos obtenidos en la compra
+     * @return Total de puntos acumulados
+     * @throws SQLException Error durante la actualización SQL
+     */
     private int actualizarCliente(Connection conn, int idCliente,String nombreCliente,double totalCompra,int puntosGanados) throws SQLException {
 
         String sqlSelect = """
@@ -94,7 +120,16 @@ public class PuntosDBService {
         return puntosTotales;
     }
 
-    
+    /**
+     * Inserta un nuevo cliente en la base de datos
+     * @param conn Conexión activa a la base de datos
+     * @param idCliente Identificación del cliente
+     * @param nombreCliente Nombre del cliente
+     * @param totalCompra Valor total de la compra
+     * @param puntosGanados Puntos obtenidos en la compra
+     * @return Cantidad de puntos acumulados
+     * @throws SQLException Error durante la inserción SQL
+     */
     private int insertarCliente(Connection conn, int idCliente, String nombreCliente,double totalCompra, int puntosGanados) throws SQLException {
 
         String sqlInsert = """

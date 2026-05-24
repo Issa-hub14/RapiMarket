@@ -15,6 +15,12 @@ import util.ReceptorVozVosk;
 import util.ReceptorVozVosk.Comando;
 import java.util.List;
 
+/**
+ * Controlador encargado de gestionar la lista de compras.
+ * Permite buscar Productos, agregar o eliminar elementos de la lista y utilizar comandos por voz
+ * 
+ * @author isabe
+ */
 public class ControladorListaCompras {
 
     private final VistaListaCompras vista;
@@ -35,10 +41,16 @@ public class ControladorListaCompras {
         actualizarLista();
     }
 
+    /**
+     * Carga el catalogo inicial de productos en la vista
+     */
     private void cargarCatalogoInicial() {
         vista.mostrarResultados(modelo.obtenerCatalogo());
     }
 
+    /**
+     * Conecta los botones y eventos de la vista
+     */
     private void conectarBotones() {
         vista.addBtnBuscarListener(e -> buscarProducto(vista.getTextoBusqueda()));
         vista.addBtnAgregarListaListener(e -> agregarALista());
@@ -48,6 +60,9 @@ public class ControladorListaCompras {
         vista.addBtnVolverListener(e -> volver());
     }
 
+    /**
+     * Lee en voz alta los productos de la lista de compras
+     */
     private void leerLista() {
         List<String> lista = modelo.obtenerListaDeMercado();
 
@@ -66,6 +81,10 @@ public class ControladorListaCompras {
         lectorVoz.hablar(mensaje);
     }
 
+    /**
+     * Busca un producto utilizando el texto ingresado
+     * @param texto Nombre del producto a buscar
+     */
     private void buscarProducto(String texto) {
         if (texto == null || texto.isBlank()) {
             lectorVoz.hablar("Di o escribe el producto que deseas buscar.");
@@ -90,6 +109,9 @@ public class ControladorListaCompras {
         }
     }
 
+    /**
+     * Agrega un producto seleccionado a la lista de compras
+     */
     private void agregarALista() {
         String seleccionado = vista.getProductoSeleccionado();
 
@@ -104,6 +126,9 @@ public class ControladorListaCompras {
         lectorVoz.hablar(nombre + " agregado a tu lista de compras");
     }
 
+    /**
+     * Elimina un producto seleccionado de la lista de compras
+     */
     private void quitarDeLista() {
 
         String seleccionado = vista.getItemListaSeleccionado();
@@ -119,10 +144,16 @@ public class ControladorListaCompras {
 
     }
 
+    /**
+     * Actualiza la lista de compras mostrada en la vista
+     */
     private void actualizarLista() {
         vista.actualizarListaMercado(modelo.obtenerListaDeMercado());
     }
 
+    /**
+     * Regresa a la vista principal de la aplicación
+     */
     private void volver() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -138,6 +169,9 @@ public class ControladorListaCompras {
         });
     }
 
+    /**
+     * Activa o desactiva el reconocimiento por voz
+     */
     private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -190,6 +224,10 @@ public class ControladorListaCompras {
         }
     }
 
+    /**
+     * Agregar un producto directamente a la lista de compras
+     * @param producto Nombre del producto a agregar
+     */
     private void agregarProductoDirecto(String producto) {
         if (producto == null || producto.isEmpty()) {
             lectorVoz.hablar("No entendí qué producto quieres agregar.");
@@ -207,6 +245,10 @@ public class ControladorListaCompras {
         lectorVoz.hablar(producto + " agregado a tu lista");
     }
 
+    /**
+     * Eliminar un producto directamente a la lista de compras
+     * @param producto Nombre del producto a eliminar
+     */
     private void eliminarProductoDirecto(String producto) {
         if (producto == null || producto.isEmpty()) {
             lectorVoz.hablar("No entendí qué producto quieres eliminar.");

@@ -17,6 +17,12 @@ import java.util.List;
 import servicio.PuntosDBService;
 import servicio.VentaTXTService;
 
+/**
+ * Controlador encargado de gestionar el proceso de compra en linea.
+ * Permite buscar productos, administrar el carrito y confirmar pedidos.
+ * 
+ * @author isabe
+ */
 public class ControladorPedido {
 
     private final VistaPedidoOnline vista;
@@ -46,18 +52,24 @@ public class ControladorPedido {
         }).start();
     }
 
+    /**
+     * Conecta los botones y eventos de la vista
+     */
     private void conectarBotones() {
         vista.addBtnBuscarListener(e -> buscar());
-        vista.addBtnAgregarListener(e -> agregarSeleccionado());
-        vista.addBtnEliminarListener(e -> eliminarSeleccionado());
+        vista.addBtnAgregarListener(e -> agregarProducto());
+        vista.addBtnEliminarListener(e -> eliminarProducto());
         vista.addBtnConfirmarListener(e -> confirmarPedido());
         vista.addBtnLeerCarritoListener(e -> leerCarrito());
         vista.addBtnVolverListener(e -> volver());
         vista.addBtnMicrofonoListener(e -> manejarMicrofono());
 
-        vista.addDobleClickProductoListener(e -> agregarSeleccionado());
+        vista.addDobleClickProductoListener(e -> agregarProducto());
     }
 
+    /**
+     * Busca productos utilizando el texto ingresado
+     */
     private void buscar() {
         String termino = vista.getTextoBusqueda();
         if (termino.isBlank()) {
@@ -72,7 +84,11 @@ public class ControladorPedido {
         }
     }
 
-    private void agregarSeleccionado() {
+    /**
+     * Agrega el producto seleccionado al carrito
+     * 
+     */
+    private void agregarProducto() {
         String seleccionado = vista.getProductoSeleccionado();
         if (seleccionado == null) {
             lectorVoz.hablar("Primero selecciona un producto de la lista.");
@@ -98,7 +114,10 @@ public class ControladorPedido {
         }
     }
 
-    private void eliminarSeleccionado() {
+    /**
+     * Elimina el producto seleccionado del carrito
+     */
+    private void eliminarProducto() {
         String seleccionado = vista.getProductoSeleccionado();
         if (seleccionado == null) {
             lectorVoz.hablar("Selecciona un producto para eliminar.");
@@ -111,6 +130,9 @@ public class ControladorPedido {
 
     }
 
+    /**
+     * Confirma el pedido actual y procesa la compra
+     */
     private void confirmarPedido() {
         Carrito carrito = modelo.obtenerCarrito();
         if (carrito.getProductos().isEmpty()) {
@@ -136,12 +158,18 @@ public class ControladorPedido {
 
     }
 
+    /**
+     * Lee en voz alta el contenido del carrito
+     */
     private void leerCarrito() {
         String resumen = modelo.obtenerCarrito().obtenerResumenParaVoz();
         lectorVoz.hablar(resumen);
         vista.actualizarEstado("Leyendo carrito...");
     }
 
+    /**
+     * Regresa a la vista principal de la aplicación
+     */
     private void volver() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -158,6 +186,9 @@ public class ControladorPedido {
         });
     }
 
+    /**
+     * Activa o desactiva el reconocimiento por voz 
+     */
     private void manejarMicrofono() {
         if (receptorVoz.isGrabando()) {
             receptorVoz.detenerGrabacion();
@@ -192,10 +223,10 @@ public class ControladorPedido {
                         return;
                     }
                     if (ultimoComando == Comando.AGREGAR) {
-                        agregarProductoDirecto(producto);
+                        agregarProducto(producto);
                         ultimoComando = null;
                     } else if (ultimoComando == Comando.ELIMINAR) {
-                        eliminarProductoDirecto(producto);
+                        eliminarProducto(producto);
                         ultimoComando = null;
                     } else {
                         vista.setTextoBusqueda(producto);
@@ -213,6 +244,9 @@ public class ControladorPedido {
         }
     }
 
+    /**
+     * Actualiza la información del carrito mostrada en la vista
+     */
     private void actualizarCarritoEnVista() {
         Carrito c = modelo.obtenerCarrito();
         String texto = "";
@@ -225,7 +259,11 @@ public class ControladorPedido {
         vista.actualizarCarrito(texto, c.obtenerTotal());
     }
 
-    private void agregarProductoDirecto(String producto) {
+    /**
+     * Agrega un producto directamente al carrito utilizando su nombre
+     * @param producto Nombre del producto agregado
+     */
+    private void agregarProducto(String producto) {
         if (producto == null || producto.isEmpty()) {
             lectorVoz.hablar("No entendí qué producto quieres agregar.");
             return;
@@ -243,7 +281,11 @@ public class ControladorPedido {
         lectorVoz.hablar(p.getNombre() + " agregado al carrito. Total: " + (int) modelo.obtenerCarrito().obtenerTotal() + " pesos");
     }
 
-    private void eliminarProductoDirecto(String producto) {
+    /**
+     * Elimina un producto directamente del carrito utilizando su nombre
+     * @param producto Nombre del producto a eliminar
+     */
+    private void eliminarProducto(String producto) {
         if (producto == null || producto.isEmpty()) {
             lectorVoz.hablar("No entendí qué producto quieres eliminar.");
             return;

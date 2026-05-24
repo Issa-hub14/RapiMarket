@@ -1,0 +1,10 @@
+===== REGISTRO DE VENTA =====
+
+Tipo: Cliente Invitado
+PRODUCTOS:
+Leche Entera 1L x1 -> $3500.0
+Arroz 2kg x1 -> $6500.0
+
+TOTAL: $10000.0
+============================
+

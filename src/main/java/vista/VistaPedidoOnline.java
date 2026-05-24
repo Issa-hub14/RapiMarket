@@ -4,16 +4,18 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import modelo.Producto;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
+/**
+ * Vista encargada de gestionar los pedidos en linea
+ * Permite buscar productos,agregarlos o eliminarlos del carrito y confirmar la compra
+ * 
+ * @author isabe
+ */
 public class VistaPedidoOnline extends VistaBase {
 
     /**
@@ -36,12 +38,18 @@ public class VistaPedidoOnline extends VistaBase {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Inicializa los componentes visuales de la ventana
+     */
     @Override
     protected void initComponentes() {
         initComponents();
         configurarEstilos();
     }
 
+    /**
+     * Configura estilos, eventos y comportamientos de los componentes.
+     */
     private void configurarEstilos() {
 
         lstResultados.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -66,6 +74,10 @@ public class VistaPedidoOnline extends VistaBase {
         });
 
         lstResultados.addMouseListener(new MouseAdapter() {
+            /**
+             * Detecta dobleClick sobre un producto
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2 && accionDobleClick != null) {
@@ -94,6 +106,12 @@ public class VistaPedidoOnline extends VistaBase {
         aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
+    /**
+     * Aplica estilo y comportamiento personalizado a un botón
+     * @param btn Botón a configurar
+     * @param color Color principal del botón
+     * @param textoVoz Texto reproducido por voz
+     */
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
         btn.setBackground(color);
         btn.setFocusPainted(false);
@@ -105,16 +123,28 @@ public class VistaPedidoOnline extends VistaBase {
         }
 
         btn.addMouseListener(new MouseAdapter() {
+            /**
+             * Cambia el color del botón cuando el mouse entra
+             * @param e evento del mouse
+             */
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
             }
 
+            /**
+             * Restaura el color original del botón
+             * @param e evento del mouse
+             */
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
 
+            /**
+             * Ejecuta la acción del botón seleccionado
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ultimoBoton != btn) {
@@ -149,6 +179,10 @@ public class VistaPedidoOnline extends VistaBase {
         );
     }
 
+    /**
+     * Muestra los productos encontrados en la busqueda 
+     * @param productos Lista de productos encontrados
+     */
     public void mostrarResultados(List<Producto> productos) {
         DefaultListModel<String> model = new DefaultListModel<>();
         if (productos.isEmpty()) {
@@ -163,6 +197,11 @@ public class VistaPedidoOnline extends VistaBase {
         lstResultados.setModel(model);
     }
 
+    /**
+     * Actualiza el resumen y el total del carrito
+     * @param resumen texto resumen del carrito
+     * @param total Total acumulado de la compra
+     */
     public void actualizarCarrito(String resumen, double total) {
         txtCarrito.setText(resumen);
         lblTotal.setText("Total: $" + (int) total); //precio

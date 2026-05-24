@@ -5,7 +5,9 @@
 package modelo;
 
 /**
- *
+ * Clase que representa un cliente registrado dentro del sistema
+ * Un cliente Registrado puede acumular puntos y almacenar información personal
+ * 
  * @author isabe
  */
 public class ClienteRegistrado extends Persona {
@@ -28,6 +30,10 @@ public class ClienteRegistrado extends Persona {
         return puntos;
     }
 
+    /**
+     * Agregar puntos al cliente
+     * @param puntos Cantidad de puntos a agregar
+     */
     public void agregarPuntos(int puntos) {
         if (puntos > 0) {
             this.puntos += puntos;
@@ -52,11 +58,19 @@ public class ClienteRegistrado extends Persona {
         return telefono;
     }
 
+    /**
+     * Obtiene el tipo de cliente 
+     * @return Tipo de cliente registrado
+     */
     @Override
     public String obtenerTipoCliente() {
         return "Cliente Registrado";
     }
 
+    /**
+     * Devuelve un representación en texto del cliente registrado
+     * @return Información del cliente registrado
+     */
     @Override
     public String toString() {
         return super.toString()

@@ -4,16 +4,18 @@
  */
 package vista;
 
-/**
- *
- * @author isabe
- */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import modelo.ClienteRegistrado;
 
+/**
+ * Vista encargada de la validación y gestión de usuarios dentro del sistema de compras, Se permite el increso como cliente
+ * registrado o invitado
+ * 
+ * @author isabe
+ */
 public class VistaUsuario extends VistaBase {
 
     /**
@@ -34,12 +36,18 @@ public class VistaUsuario extends VistaBase {
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Inicializa los componentes visuales de la ventana
+     */
     @Override
     protected void initComponentes() {
         initComponents();
         configurarEstilos();
     }
 
+    /**
+     * Configura estilos, eventos y comportamientos de los componentes.
+     */
     private void configurarEstilos() {
 
         txtNombre.setEditable(false);
@@ -54,6 +62,12 @@ public class VistaUsuario extends VistaBase {
         aplicarEstiloBoton(btnMicrofono, new Color(0, 51, 0), "Microfono");
     }
 
+    /**
+     * Aplica estilo y comportamiento personalizado a un botón
+     * @param btn Botón a configurar
+     * @param color Color principal del botón
+     * @param textoVoz Texto reproducido por voz
+     */
     private void aplicarEstiloBoton(JButton btn, Color color, String textoVoz) {
         btn.setBackground(color);
         btn.setFocusPainted(false);
@@ -65,16 +79,28 @@ public class VistaUsuario extends VistaBase {
         }
 
         btn.addMouseListener(new MouseAdapter() {
+            /**
+             * Cambia el color del botón cuando el mouse entra
+             * @param e evento del mouse
+             */
             @Override
             public void mouseEntered(MouseEvent e) {
                 btn.setBackground(color.darker());
             }
 
+            /**
+             * Restaura el color original del botón
+             * @param e evento del mouse
+             */
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setBackground(color);
             }
 
+            /**
+             * Ejecuta la acción del botón seleccionado
+             * @param e evento del mouse
+             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ultimoBoton != btn) {
@@ -103,6 +129,10 @@ public class VistaUsuario extends VistaBase {
         );
     }
 
+    /**
+     * Muestra la información de un cliente registrado en los campos de texto
+     * @param cliente Cliente registrado cuyos datos serán mostrados
+     */
     public void mostrarCliente(ClienteRegistrado cliente) {
 
         txtNombre.setText(cliente.getNombre());
