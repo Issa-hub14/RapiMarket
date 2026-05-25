@@ -201,7 +201,7 @@ public class ControladorUsuario {
      * @param texto Texto ingresado por el usuario en palabras
      * @return Cadena con los numeros convertidos o el texto original si alguna palabra no es reconocida
      */
-    private String convertirPalabraANumero(String texto) {
+    public String convertirPalabraANumero(String texto) {
         String lower = texto.toLowerCase().trim();
 
         Map<String, String> mapa = new HashMap<>();

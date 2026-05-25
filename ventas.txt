@@ -2,9 +2,8 @@
 
 Tipo: Cliente Invitado
 PRODUCTOS:
-Leche Entera 1L x1 -> $3500.0
-Arroz 2kg x1 -> $6500.0
+Pan x1 -> $1500.0
 
-TOTAL: $10000.0
+TOTAL: $1500.0
 ============================
 

@@ -4,13 +4,13 @@
  */
 package modelo;
 
+import java.util.List;
+
 /**
  * Interfaz que define las operaciones principales del modelo utilizadas en la aplicación
  * 
  * @author isabe
  */
-import java.util.List;
-
 public interface IModelo {
 
     List<Producto> buscarProductos(String termino);

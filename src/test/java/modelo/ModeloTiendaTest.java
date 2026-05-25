@@ -5,10 +5,6 @@
 package modelo;
 
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,149 +13,224 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author isabe
  */
 public class ModeloTiendaTest {
-    
+
     public ModeloTiendaTest() {
     }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
-    @BeforeEach
-    public void setUp() {
-    }
-    
-    @AfterEach
-    public void tearDown() {
-    }
 
     /**
-     * Test of getClienteActual method, of class ModeloTienda.
+     * Test del constructor, de la clase ModeloTienda.
      */
     @Test
-    public void testGetClienteActual() {
-        System.out.println("getClienteActual");
-        ModeloTienda instance = new ModeloTienda();
-        Persona expResult = null;
-        Persona result = instance.getClienteActual();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testConstructorModeloTienda() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        assertNotNull(modelo.obtenerCarrito(), "El carrito no debe ser null");
+        assertNotNull(modelo.obtenerCatalogo(), "El catálogo no debe ser null");
+        assertNotNull(modelo.obtenerListaDeMercado(), "La lista de mercado no debe ser null");
+        assertFalse(modelo.obtenerCatalogo().isEmpty(), "El catálogo debe tener productos");
     }
 
     /**
-     * Test of setClienteActual method, of class ModeloTienda.
+     * Test de ClienteActual, de la clase ModeloTienda.
+     */
+    @Test
+    public void testClienteActualInicial() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        assertEquals(
+                "Cliente Invitado",
+                modelo.getClienteActual().obtenerTipoCliente(),
+                "Debe iniciar con cliente invitado"
+        );
+    }
+
+    /**
+     * Test del método setClienteActual, de la clase ModeloTienda.
      */
     @Test
     public void testSetClienteActual() {
-        System.out.println("setClienteActual");
-        Persona clienteActual = null;
-        ModeloTienda instance = new ModeloTienda();
-        instance.setClienteActual(clienteActual);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        ClienteRegistrado cliente = new ClienteRegistrado(
+                "Juan",
+                123,
+                "Calle 10",
+                "juan@gmail.com",
+                "3001234567"
+        );
+
+        modelo.setClienteActual(cliente);
+        assertEquals(cliente, modelo.getClienteActual(), "Error al cambiar cliente");
     }
 
     /**
-     * Test of buscarProductos method, of class ModeloTienda.
+     * Test2 del método setClienteActual, de la clase ModeloTienda.
      */
     @Test
-    public void testBuscarProductos() {
-        System.out.println("buscarProductos");
-        String termino = "";
-        ModeloTienda instance = new ModeloTienda();
-        List<Producto> expResult = null;
-        List<Producto> result = instance.buscarProductos(termino);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSetClienteActualNull() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        Persona anterior = modelo.getClienteActual();
+
+        modelo.setClienteActual(null);
+
+        assertEquals(anterior, modelo.getClienteActual(),
+                "No debe cambiar el cliente si es null");
     }
 
     /**
-     * Test of buscarProductoPorNombre method, of class ModeloTienda.
+     * Test del método BuscarProductos (PorNombre), de la clase ModeloTienda.
+     */
+    @Test
+    public void testBuscarProductosPorNombre() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        List<Producto> resultados = modelo.buscarProductos("Leche");
+
+        assertFalse(resultados.isEmpty(), "Debe encontrar productos");
+        assertEquals("Leche Entera 1L",
+                resultados.get(0).getNombre(),
+                "Producto incorrecto");
+    }
+
+    /**
+     * Test2 del método BuscarProductos (PorCategoria), de la clase
+     * ModeloTienda.
+     */
+    @Test
+    public void testBuscarProductosPorCategoria() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        List<Producto> resultados = modelo.buscarProductos("Lácteos");
+
+        assertFalse(resultados.isEmpty(), "Debe encontrar productos por categoría");
+    }
+
+    /**
+     * Test3 del método BuscarProductos (vacio), de la clase ModeloTienda.
+     */
+    @Test
+    public void testBuscarProductosVacio() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        List<Producto> resultados = modelo.buscarProductos("");
+
+        assertEquals(
+                modelo.obtenerCatalogo().size(),
+                resultados.size(),
+                "Debe devolver todo el catálogo"
+        );
+    }
+
+    /**
+     * Test4 del método BuscarProductos (PorNombre), de la clase ModeloTienda.
      */
     @Test
     public void testBuscarProductoPorNombre() {
-        System.out.println("buscarProductoPorNombre");
-        String nombre = "";
-        ModeloTienda instance = new ModeloTienda();
-        Producto expResult = null;
-        Producto result = instance.buscarProductoPorNombre(nombre);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        Producto producto = modelo.buscarProductoPorNombre("Arroz 2kg");
+
+        assertNotNull(producto, "Debe encontrar el producto");
+        assertEquals("Granos", producto.getCategoria(), "Categoría incorrecta");
     }
 
     /**
-     * Test of obtenerCarrito method, of class ModeloTienda.
+     * Test5 del método BuscarProductos (inexistente), de la clase ModeloTienda.
+     */
+    @Test
+    public void testBuscarProductoPorNombreInexistente() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        Producto producto = modelo.buscarProductoPorNombre("Pizza");
+
+        assertNull(producto, "Debe retornar null");
+    }
+
+    /**
+     * Test del método obtenerCarrito, de la clase ModeloTienda.
      */
     @Test
     public void testObtenerCarrito() {
-        System.out.println("obtenerCarrito");
-        ModeloTienda instance = new ModeloTienda();
-        Carrito expResult = null;
-        Carrito result = instance.obtenerCarrito();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        Carrito carrito = modelo.obtenerCarrito();
+
+        assertNotNull(carrito, "El carrito no debe ser null");
     }
 
     /**
-     * Test of obtenerCatalogo method, of class ModeloTienda.
+     * Test del método obtenerCatalogo, de la clase ModeloTienda.
      */
     @Test
     public void testObtenerCatalogo() {
-        System.out.println("obtenerCatalogo");
-        ModeloTienda instance = new ModeloTienda();
-        List<Producto> expResult = null;
-        List<Producto> result = instance.obtenerCatalogo();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        List<Producto> catalogo = modelo.obtenerCatalogo();
+
+        assertFalse(catalogo.isEmpty(), "El catálogo no debe estar vacío");
     }
 
     /**
-     * Test of obtenerListaDeMercado method, of class ModeloTienda.
-     */
-    @Test
-    public void testObtenerListaDeMercado() {
-        System.out.println("obtenerListaDeMercado");
-        ModeloTienda instance = new ModeloTienda();
-        List<String> expResult = null;
-        List<String> result = instance.obtenerListaDeMercado();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of agregarAListaMercado method, of class ModeloTienda.
+     * Test del método agregarAListaMercado, de la clase ModeloTienda.
      */
     @Test
     public void testAgregarAListaMercado() {
-        System.out.println("agregarAListaMercado");
-        String item = "";
-        ModeloTienda instance = new ModeloTienda();
-        instance.agregarAListaMercado(item);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        modelo.agregarAListaMercado("Leche");
+
+        assertTrue(
+                modelo.obtenerListaDeMercado().contains("Leche"),
+                "Debe agregar el producto"
+        );
     }
 
     /**
-     * Test of eliminarDeListaMercado method, of class ModeloTienda.
+     * Test2 del método agregarAListaMercado, de la clase ModeloTienda.
+     */
+    @Test
+    public void testAgregarDuplicadoListaMercado() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        modelo.agregarAListaMercado("Leche");
+        modelo.agregarAListaMercado("Leche");
+
+        assertEquals(
+                1,
+                modelo.obtenerListaDeMercado().size(),
+                "No debe agregar duplicados"
+        );
+    }
+
+    /**
+     * Test3 del método agregarAListaMercado (vacio), de la clase ModeloTienda.
+     */
+    @Test
+    public void testAgregarItemVacioListaMercado() {
+        ModeloTienda modelo = new ModeloTienda();
+
+        modelo.agregarAListaMercado("");
+
+        assertTrue(
+                modelo.obtenerListaDeMercado().isEmpty(),
+                "No debe agregar elementos vacíos"
+        );
+    }
+
+    /**
+     * Test del método eliminarDeListaMercado, de la clase ModeloTienda.
      */
     @Test
     public void testEliminarDeListaMercado() {
-        System.out.println("eliminarDeListaMercado");
-        String item = "";
-        ModeloTienda instance = new ModeloTienda();
-        instance.eliminarDeListaMercado(item);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        ModeloTienda modelo = new ModeloTienda();
+
+        modelo.agregarAListaMercado("Leche");
+        modelo.eliminarDeListaMercado("Leche");
+
+        assertFalse(
+                modelo.obtenerListaDeMercado().contains("Leche"),
+                "Debe eliminar el producto"
+        );
     }
-    
 }
