@@ -279,7 +279,7 @@ public class VistaListaCompras extends VistaBase {
         DefaultListModel<String> model = (DefaultListModel<String>) lstMiLista.getModel();
 
         if (model == null || model.isEmpty()) {
-            lectorVoz.hablar("Tu lista de compras está vacía.");
+            lectorVoz.hablar("Tu lista de compras está vacia.");
             return;
         }
 

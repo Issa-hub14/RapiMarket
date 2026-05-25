@@ -101,6 +101,8 @@ public class ControladorUsuario {
      * Continuar el proceso como ClienteInvitado (sin ID)
      */
     private void continuarInvitado() {
+        clienteActual = null;
+        vista.limpiarCampos();
         ClienteInvitado invitado = new ClienteInvitado("Invitado");
         lectorVoz.hablar("Continuando como invitado");
 

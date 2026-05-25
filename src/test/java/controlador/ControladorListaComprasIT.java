@@ -93,7 +93,7 @@ public class ControladorListaComprasIT {
     @Test
     public void testListaMercadoIniciaVacia() {
         ModeloTienda modelo = new ModeloTienda();
-        assertTrue(modelo.obtenerListaDeMercado().isEmpty(), "La lista debe iniciar vacía");
+        assertTrue(modelo.obtenerListaDeMercado().isEmpty(), "La lista debe iniciar vacia");
     }
 
     /**

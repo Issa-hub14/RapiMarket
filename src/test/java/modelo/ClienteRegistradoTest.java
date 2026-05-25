@@ -106,7 +106,7 @@ public class ClienteRegistradoTest {
 
         cliente.setDireccion("");
 
-        assertEquals("Calle 10", cliente.getDireccion(), "No debe aceptar dirección vacía");
+        assertEquals("Calle 10", cliente.getDireccion(), "No debe aceptar dirección vacia");
     }
 
     /**

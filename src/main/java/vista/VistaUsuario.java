@@ -11,9 +11,9 @@ import java.util.List;
 import modelo.ClienteRegistrado;
 
 /**
- * Vista encargada de la validación y gestión de usuarios dentro del sistema de compras, Se permite el increso como cliente
- * registrado o invitado
- * 
+ * Vista encargada de la validación y gestión de usuarios dentro del sistema de
+ * compras, Se permite el increso como cliente registrado o invitado
+ *
  * @author isabe
  */
 public class VistaUsuario extends VistaBase {
@@ -64,6 +64,7 @@ public class VistaUsuario extends VistaBase {
 
     /**
      * Aplica estilo y comportamiento personalizado a un botón
+     *
      * @param btn Botón a configurar
      * @param color Color principal del botón
      * @param textoVoz Texto reproducido por voz
@@ -81,6 +82,7 @@ public class VistaUsuario extends VistaBase {
         btn.addMouseListener(new MouseAdapter() {
             /**
              * Cambia el color del botón cuando el mouse entra
+             *
              * @param e evento del mouse
              */
             @Override
@@ -90,6 +92,7 @@ public class VistaUsuario extends VistaBase {
 
             /**
              * Restaura el color original del botón
+             *
              * @param e evento del mouse
              */
             @Override
@@ -99,6 +102,7 @@ public class VistaUsuario extends VistaBase {
 
             /**
              * Ejecuta la acción del botón seleccionado
+             *
              * @param e evento del mouse
              */
             @Override
@@ -131,6 +135,7 @@ public class VistaUsuario extends VistaBase {
 
     /**
      * Muestra la información de un cliente registrado en los campos de texto
+     *
      * @param cliente Cliente registrado cuyos datos serán mostrados
      */
     public void mostrarCliente(ClienteRegistrado cliente) {
@@ -139,6 +144,14 @@ public class VistaUsuario extends VistaBase {
         txtCorreo.setText(cliente.getCorreo());
         txtTelefono.setText(cliente.getTelefono());
         txtDirección.setText(cliente.getDireccion());
+    }
+
+    public void limpiarCampos() {
+        txtNombre.setText("");
+        txtCorreo.setText("");
+        txtDirección.setText("");
+        txtTelefono.setText("");
+        txtBuscar.setText("");
     }
 
     public String getIdCliente() {

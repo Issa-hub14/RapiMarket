@@ -106,7 +106,7 @@ public class ReceptorVozVosk {
      */
     private void cargarModelo() {
         try {
-            String rutaModelo = "C:/Users/isabe/Downloads/VozATextoApp/src/modelos/vosk-model-small-es-0.42/vosk-model-small-es-0.42";
+            String rutaModelo = "C:\\Users\\USUARIO\\Downloads\\VozATextoApp-20260513T213014Z-3-001\\VozATextoApp\\src\\modelos\\vosk-model-small-es-0.42\\vosk-model-small-es-0.42";
             model = new Model(rutaModelo);
             System.out.println("[Vosk] Modelo cargado");
         } catch (Exception e) {

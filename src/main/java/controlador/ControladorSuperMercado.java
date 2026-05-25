@@ -92,7 +92,7 @@ public class ControladorSuperMercado {
     private void siguienteProducto() {
         List<String> lista = modelo.obtenerListaDeMercado();
         if (lista.isEmpty()) {
-            lectorVoz.hablar("Tu lista de compras está vacía.");
+            lectorVoz.hablar("Tu lista de compras está vacia.");
             return;
         }
         indiceActual ++;

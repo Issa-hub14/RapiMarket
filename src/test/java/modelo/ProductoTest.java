@@ -31,7 +31,7 @@ public class ProductoTest {
         assertEquals(3500, producto.getPrecio(),"Error en precio");
         assertEquals("Lácteos", producto.getCategoria(),"Error en categoría");
         assertEquals("Pasillo 1", producto.getPasillo(),"Error en pasillo");
-        assertEquals("", producto.getDescripcion(),"La descripción debe iniciar vacía");
+        assertEquals("", producto.getDescripcion(),"La descripción debe iniciar vacia");
         assertEquals(1, producto.getCantidad(),"La cantidad debe iniciar en 1");
     }
 

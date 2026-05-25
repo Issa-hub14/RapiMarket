@@ -67,7 +67,7 @@ public class ControladorListaCompras {
         List<String> lista = modelo.obtenerListaDeMercado();
 
         if (lista == null || lista.isEmpty()) {
-            lectorVoz.hablar("Tu lista de compras está vacía.");
+            lectorVoz.hablar("Tu lista de compras está vacia.");
             return;
         }
          String mensaje = "Tu lista tiene" + lista.size() + "Productos";
@@ -96,11 +96,11 @@ public class ControladorListaCompras {
             vista.mostrarResultados(resultados);
 
             if (resultados.isEmpty()) {
-                lectorVoz.hablar("No encontré " + texto);
+                lectorVoz.hablar("No encontre " + texto);
             } else {
                 Producto producto = resultados.get(0);
 
-                lectorVoz.hablar("Encontré " + resultados.size() + " productos. "
+                lectorVoz.hablar("Encontre " + resultados.size() + " productos. "
                         + "Primer resultado: " + producto.getNombre()
                         + ". Precio " + (int) producto.getPrecio() + " pesos. ");
             }

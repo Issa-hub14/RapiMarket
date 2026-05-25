@@ -112,7 +112,7 @@ public class CarritoTest {
 
         List<Producto> productos = carrito.getProductos();
 
-        assertFalse(productos.isEmpty(), "La lista está vacía");
+        assertFalse(productos.isEmpty(), "La lista está vacia");
     }
     
     /**
